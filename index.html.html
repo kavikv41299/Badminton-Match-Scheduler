@@ -81,7 +81,7 @@
                 </div>
             </div>
 
-            <!-- Navigation Controls: Only Admin Login and Dark Mode -->
+            <!-- Navigation Controls: Admin Login and Dark Mode -->
             <div class="flex items-center space-x-2 sm:space-x-3">
                 <!-- Admin Lock/Unlock Button -->
                 <button onclick="handleAdminToggle()" id="adminAuthBtn" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-700 transition shadow-sm">
@@ -293,7 +293,7 @@
                 </h3>
                 <button onclick="closeModal('adminModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Enter the captain password to unlock match scheduling and player roster management (Default password: <code class="bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded font-mono text-brand-600 dark:text-brand-400">badminton123</code>).</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Enter the captain password to unlock match scheduling and player roster management.</p>
             <div class="space-y-2">
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Admin Password</label>
                 <input type="password" id="adminPasswordInput" placeholder="Enter password" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
@@ -301,6 +301,41 @@
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeModal('adminModal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 transition">Cancel</button>
                 <button onclick="verifyAdminPassword()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow transition">Login as Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Settings / Change Password Modal (Shown when Admin clicks header button while logged in) -->
+    <div id="adminSettingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+                <h3 class="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-emerald-500"></i> Admin Controls & Password
+                </h3>
+                <button onclick="closeModal('adminSettingsModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="bg-emerald-50 dark:bg-emerald-950/30 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800/40 text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
+                <span><i class="fa-solid fa-shield-check text-emerald-500 mr-1.5"></i> You are currently logged in as <strong>Admin</strong>.</span>
+            </div>
+
+            <!-- Change Password Form -->
+            <div class="space-y-3 pt-1">
+                <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase">Change Admin Password</h4>
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">New Password</label>
+                    <input type="password" id="newAdminPasswordInput" placeholder="Enter new password" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <button onclick="changeAdminPassword()" class="w-full py-2 px-3 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-floppy-disk"></i> Save New Password
+                </button>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                <button onclick="adminLogout()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout Admin
+                </button>
+                <button onclick="closeModal('adminSettingsModal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 transition">Close</button>
             </div>
         </div>
     </div>
@@ -452,6 +487,7 @@
         let activePlayerId = 'p1';
 
         let isAdminLoggedIn = false;
+        // Default initial admin password (can be changed in code here or dynamically in the UI)
         let adminPassword = 'badminton123';
 
         let players = [];
@@ -859,9 +895,7 @@
 
         function handleAdminToggle() {
             if (isAdminLoggedIn) {
-                isAdminLoggedIn = false;
-                updateAdminUI();
-                showToast("Logged out of Admin view.", "info");
+                openModal('adminSettingsModal');
             } else {
                 openModal('adminModal');
             }
@@ -880,6 +914,26 @@
             }
         }
 
+        function changeAdminPassword() {
+            const newPw = document.getElementById('newAdminPasswordInput').value.trim();
+            if (!newPw) {
+                showToast("Password cannot be empty.", "warning");
+                return;
+            }
+            adminPassword = newPw;
+            localStorage.setItem('smash_admin_password', newPw);
+            document.getElementById('newAdminPasswordInput').value = '';
+            closeModal('adminSettingsModal');
+            showToast("Admin password updated successfully!", "success");
+        }
+
+        function adminLogout() {
+            isAdminLoggedIn = false;
+            closeModal('adminSettingsModal');
+            updateAdminUI();
+            showToast("Logged out of Admin view.", "info");
+        }
+
         function requireAdmin(actionCallback) {
             if (isAdminLoggedIn) {
                 actionCallback();
@@ -895,7 +949,7 @@
             const modeBadge = document.getElementById('modeBadge');
 
             if (isAdminLoggedIn) {
-                authText.innerText = "Admin Logout";
+                authText.innerText = "Admin Settings";
                 lockIcon.className = "fa-solid fa-lock-open text-emerald-400";
                 modeBadge.className = "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
                 modeBadge.innerHTML = `<i class="fa-solid fa-user-shield text-xs"></i><span>Admin View</span>`;
