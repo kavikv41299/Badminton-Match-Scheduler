@@ -73,7 +73,7 @@
                     <i id="adminLockIcon" class="fa-solid fa-lock text-amber-400"></i>
                     <span id="adminAuthText">Admin Login</span>
                 </button>
-                <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition shadow-sm" title="Toggle Light/Dark Theme">
+                <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition shadow-sm" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
                     <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
                 </button>
             </div>
@@ -99,16 +99,22 @@
                     <span id="multiSelectToggleText">Multi-Select: OFF</span>
                 </button>
 
-                <div id="modeBadge" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                    <i class="fa-solid fa-eye text-xs"></i>
-                    <span>Player View</span>
-                </div>
+                <!-- Player Authentication Control -->
+                <div id="playerAuthControl" class="flex items-center space-x-2">
+                    <button id="playerLoginBtn" onclick="openModal('playerLoginModal')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-600 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-lock text-brand-500"></i>
+                        <span>Player Login</span>
+                    </button>
 
-                <div class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <i class="fa-solid fa-user-check text-brand-600 text-xs"></i>
-                    <select id="activePlayerSelect" onchange="setActivePlayer(this.value)" class="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer text-slate-800 dark:text-slate-200">
-                        <option value="">-- Select Active Player --</option>
-                    </select>
+                    <div id="playerLoggedInBadge" class="hidden flex items-center gap-2 bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800/60 px-3 py-1.5 rounded-xl text-xs">
+                        <span class="font-bold text-brand-700 dark:text-brand-400" id="loggedInPlayerName">--</span>
+                        <button onclick="openModal('changePlayerPasswordModal')" class="text-slate-500 dark:text-slate-400 hover:text-brand-600 ml-1" title="Change Password">
+                            <i class="fa-solid fa-key text-[10px]"></i>
+                        </button>
+                        <button onclick="logoutPlayer()" class="text-rose-500 hover:text-rose-700 ml-1" title="Logout Player">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button onclick="requireAdmin(() => openModal('addPlayerModal'))" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow transition flex items-center gap-1.5">
@@ -128,10 +134,10 @@
                             <button onclick="jumpToToday()" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-2.5 py-1 rounded-lg font-semibold transition">Today</button>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button onclick="changeMonth(-1)" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 transition">
+                            <button onclick="changeMonth(-1)" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 transition" aria-label="Previous Month">
                                 <i class="fa-solid fa-chevron-left text-xs"></i>
                             </button>
-                            <button onclick="changeMonth(1)" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 transition">
+                            <button onclick="changeMonth(1)" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 transition" aria-label="Next Month">
                                 <i class="fa-solid fa-chevron-right text-xs"></i>
                             </button>
                         </div>
@@ -166,15 +172,13 @@
                             <button onclick="clearDateSelection()" class="text-[11px] font-semibold text-rose-500 hover:underline">Clear All</button>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-1.5 text-xs">
+                        <!-- Grid updated to 3 columns (Weekend option removed) -->
+                        <div class="grid grid-cols-3 gap-1.5 text-xs">
                             <button onclick="selectCurrentWeek()" class="px-2 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 text-[11px] font-medium transition flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-calendar-week text-teal-500"></i> This Week
                             </button>
                             <button onclick="selectCurrentMonth()" class="px-2 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 text-[11px] font-medium transition flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-calendar-days text-brand-500"></i> Full Month
-                            </button>
-                            <button onclick="selectWeekends()" class="px-2 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 text-[11px] font-medium transition flex items-center justify-center gap-1">
-                                <i class="fa-solid fa-umbrella-beach text-amber-500"></i> Weekends
                             </button>
                             <button onclick="selectWeekdays()" class="px-2 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 text-[11px] font-medium transition flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-briefcase text-indigo-500"></i> Weekdays
@@ -193,8 +197,18 @@
                     </div>
 
                     <div class="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 space-y-2.5">
+                        <!-- Admin Player Select Dropdown Container -->
+                        <div id="adminPlayerSelectContainer" class="hidden pb-2 border-b border-slate-200 dark:border-slate-700 space-y-1">
+                            <label for="adminTargetPlayerSelect" class="block text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase">
+                                <i class="fa-solid fa-user-shield mr-1"></i> Admin: Change Availability For
+                            </label>
+                            <select id="adminTargetPlayerSelect" class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl outline-none font-semibold text-slate-800 dark:text-slate-200">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+
                         <div class="flex justify-between items-center text-xs">
-                            <span class="font-semibold text-slate-600 dark:text-slate-300">Set Status for <span id="selectionCountBadge" class="bg-brand-500/20 text-brand-600 dark:text-brand-400 font-bold px-1.5 py-0.5 rounded text-[11px]">1 date</span> (<span id="activePlayerNameDisplay" class="text-brand-600 dark:text-brand-400 font-bold">--</span>):</span>
+                            <span class="font-semibold text-slate-600 dark:text-slate-300">Set Status for <span id="selectionCountBadge" class="bg-brand-500/20 text-brand-600 dark:text-brand-400 font-bold px-1.5 py-0.5 rounded text-[11px]">1 date</span> (<span id="activePlayerNameDisplay" class="text-brand-600 dark:text-brand-400 font-bold">Logged In Player</span>):</span>
                         </div>
                         <div class="grid grid-cols-3 gap-1.5">
                             <button onclick="setAvailabilityForSelectedDates('available')" class="py-2 px-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-1">
@@ -218,10 +232,75 @@
                         <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Team Target Readiness (6 Players)</h4>
                         <div id="teamReadinessList" class="space-y-2"></div>
                     </div>
+
+                    <!-- Player Names Breakdown for Selected Date -->
+                    <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                            <span>Availability Roster</span>
+                            <span id="rosterDateLabel" class="text-[10px] text-brand-600 dark:text-brand-400 font-normal"></span>
+                        </h4>
+                        <div id="availabilityRosterBreakdown" class="space-y-2 max-h-60 overflow-y-auto scrollbar-thin pr-1"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Player Login Modal -->
+    <div id="playerLoginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+                <h3 class="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-user-lock text-brand-500"></i> Player Login
+                </h3>
+                <button onclick="closeModal('playerLoginModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Select your name and enter your password to set your availability.</p>
+            <div class="space-y-3">
+                <div>
+                    <label for="playerSelectInput" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Select Your Name</label>
+                    <select id="playerSelectInput" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="">-- Choose Player --</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="playerPasswordInput" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password</label>
+                    <input type="password" id="playerPasswordInput" placeholder="Enter player password" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('playerLoginModal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 transition">Cancel</button>
+                <button onclick="verifyPlayerLogin()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow transition">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Player Password Modal -->
+    <div id="changePlayerPasswordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+                <h3 class="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-brand-500"></i> Change Password
+                </h3>
+                <button onclick="closeModal('changePlayerPasswordModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Update your account password.</p>
+            <div class="space-y-3">
+                <div>
+                    <label for="oldPlayerPasswordInput" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Old Password</label>
+                    <input type="password" id="oldPlayerPasswordInput" placeholder="Enter old password" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label for="newPlayerPasswordChangeInput" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">New Password</label>
+                    <input type="password" id="newPlayerPasswordChangeInput" placeholder="Enter new password" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('changePlayerPasswordModal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 transition">Cancel</button>
+                <button onclick="updatePlayerPassword()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow transition">Update Password</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Admin Login Modal -->
     <div id="adminModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -230,11 +309,11 @@
                 <h3 class="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <i class="fa-solid fa-user-shield text-amber-500"></i> Captain / Admin Login
                 </h3>
-                <button onclick="closeModal('adminModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeModal('adminModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400">Enter the captain password to unlock match scheduling and player roster management.</p>
             <div class="space-y-2">
-                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Admin Password</label>
+                <label for="adminPasswordInput" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Admin Password</label>
                 <input type="password" id="adminPasswordInput" placeholder="Enter password" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
             </div>
             <div class="flex justify-end gap-2 pt-2">
@@ -251,7 +330,7 @@
                 <h3 class="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <i class="fa-solid fa-key text-emerald-500"></i> Admin Controls & Password
                 </h3>
-                <button onclick="closeModal('adminSettingsModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeModal('adminSettingsModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="bg-emerald-50 dark:bg-emerald-950/30 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800/40 text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
@@ -261,11 +340,14 @@
             <div class="space-y-3 pt-1">
                 <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase">Change Admin Password</h4>
                 <div class="space-y-2">
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">New Password</label>
+                    <label for="newAdminPasswordInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-400">New Password</label>
                     <input type="password" id="newAdminPasswordInput" placeholder="Enter new password" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
                 <button onclick="changeAdminPassword()" class="w-full py-2 px-3 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-floppy-disk"></i> Save New Password
+                </button>
+                <button onclick="resetAdminPasswordToDefault()" class="w-full py-2 px-3 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Admin Password to '123'
                 </button>
             </div>
 
@@ -285,7 +367,7 @@
                 <h3 class="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <i class="fa-solid fa-users text-brand-500"></i> Manage Player Roster
                 </h3>
-                <button onclick="closeModal('addPlayerModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeModal('addPlayerModal')" class="text-slate-400 hover:text-slate-600" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="space-y-2">
@@ -296,8 +378,12 @@
             <div class="pt-2 border-t border-slate-100 dark:border-slate-700 space-y-3">
                 <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase">Add New Player</h4>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Player Name</label>
+                    <label for="newPlayerNameInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Player Name</label>
                     <input type="text" id="newPlayerNameInput" placeholder="e.g. John Doe" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label for="newPlayerPasswordInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Set Initial Password</label>
+                    <input type="password" id="newPlayerPasswordInput" placeholder="Set player password" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Team Assignments (Select all that apply)</label>
@@ -338,12 +424,12 @@
                 <h3 class="font-bold text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <i class="fa-solid fa-trophy text-indigo-500"></i> Schedule Fixture / Match
                 </h3>
-                <button onclick="closeModal('addMatchModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeModal('addMatchModal')" class="text-slate-400 hover:text-slate-600" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Club Team</label>
+                    <label for="matchTeamSelect" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Club Team</label>
                     <select id="matchTeamSelect" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none">
                         <option value="1M">1st Mens</option>
                         <option value="2M">2nd Mens</option>
@@ -354,11 +440,11 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opponent Name</label>
+                    <label for="matchOpponentInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opponent Name</label>
                     <input type="text" id="matchOpponentInput" placeholder="e.g. Tynemouth BC" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Location</label>
+                    <label for="matchTypeSelect" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Location</label>
                     <select id="matchTypeSelect" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none">
                         <option value="Home">Home Match</option>
                         <option value="Away">Away Match</option>
@@ -378,7 +464,6 @@
 
     <script>
         // --- SUPABASE CONFIGURATION ---
-        // REPLACE THE EMPTY STRINGS BELOW WITH YOUR SUPABASE URL AND PUBLIC ANON KEY TO SYNC DEVICELIDE
         let SUPABASE_URL = 'https://cgwmwgcyvftdtbcloeuv.supabase.co';
         let SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnd213Z2N5dmZ0ZHRiY2xvZXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTc0NTAsImV4cCI6MjEwNTA3MzQ1MH0.KRH69-Wo1Z6_KPIWNykA6OZ6qG4PWN87TXkJWInC75k';
 
@@ -392,7 +477,6 @@
             }
         }
 
-        // Teams Setup
         const TEAMS = [
             { id: '1M', name: '1st Mens', color: 'bg-blue-500' },
             { id: '2M', name: '2nd Mens', color: 'bg-cyan-500' },
@@ -402,231 +486,345 @@
             { id: '1L', name: '1st Ladies', color: 'bg-rose-500' }
         ];
 
-        // State Management
-        let players = JSON.parse(localStorage.getItem('nmbc_players')) || [
-            { id: 'p1', name: 'John Doe', teams: ['1M', '1X'] },
-            { id: 'p2', name: 'Jane Smith', teams: ['1L', '1X'] },
-            { id: 'p3', name: 'Alex Johnson', teams: ['2M', '2X'] }
-        ];
-
-        let availability = JSON.parse(localStorage.getItem('nmbc_availability')) || {};
-        let matches = JSON.parse(localStorage.getItem('nmbc_matches')) || [];
-        let adminPassword = localStorage.getItem('nmbc_admin_pwd') || 'badminton123';
-
-        let currentYear = new Date().getFullYear();
-        let currentMonth = new Date().getMonth();
-        let selectedDates = [formatDate(new Date())];
-        let activePlayerId = localStorage.getItem('nmbc_active_player') || (players[0] ? players[0].id : '');
+        let currentDate = new Date();
+        let activePlayerId = '';
         let activeTeamFilter = 'ALL';
-        let isAdminLoggedIn = localStorage.getItem('nmbc_is_admin') === 'true';
-        let isMultiSelectEnabled = false;
+        let isAdmin = false;
+        let isMultiSelect = false;
+        let selectedDates = [formatDateString(new Date())];
+        let adminPassword = '123';
 
-        function formatDate(d) {
+        let state = {
+            players: JSON.parse(localStorage.getItem('nmbc_players')) || [
+                { id: 'p1', name: 'Alex Johnson', password: '123', teams: ['1M', '1X'] },
+                { id: 'p2', name: 'Sarah Smith', password: '123', teams: ['1L', '1X'] }
+            ],
+            matches: JSON.parse(localStorage.getItem('nmbc_matches')) || [],
+            availability: JSON.parse(localStorage.getItem('nmbc_availability')) || {}
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            renderPlayerSelectDropdown();
+            renderCalendar();
+            renderSelectedDatePanel();
+            fetchSupabaseData();
+        });
+
+        async function fetchSupabaseData() {
+            if (!supabaseClient) return;
+            try {
+                const { data: players } = await supabaseClient.from('players').select('*');
+                if (players && players.length > 0) state.players = players;
+
+                const { data: matches } = await supabaseClient.from('matches').select('*');
+                if (matches) state.matches = matches;
+
+                const { data: availability } = await supabaseClient.from('availability').select('*');
+                if (availability) {
+                    const availMap = {};
+                    availability.forEach(item => {
+                        availMap[`${item.player_id}_${item.date}`] = item.status;
+                    });
+                    state.availability = availMap;
+                }
+
+                saveStateLocally();
+                renderPlayerSelectDropdown();
+                renderCalendar();
+                renderSelectedDatePanel();
+            } catch (err) {
+                console.log("Using Local Storage Sync Fallback");
+            }
+        }
+
+        function saveStateLocally() {
+            localStorage.setItem('nmbc_players', JSON.stringify(state.players));
+            localStorage.setItem('nmbc_matches', JSON.stringify(state.matches));
+            localStorage.setItem('nmbc_availability', JSON.stringify(state.availability));
+        }
+
+        function formatDateString(d) {
             const year = d.getFullYear();
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
 
-        function showToast(msg, type = 'info') {
+        function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            const bgClass = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-800';
-            toast.className = `${bgClass} text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 pointer-events-auto transition-all transform translate-y-2 opacity-0`;
-            toast.innerHTML = `<span>${msg}</span>`;
+            const bgClass = type === 'error' ? 'bg-rose-600' : type === 'success' ? 'bg-emerald-600' : 'bg-slate-800';
+            toast.className = `${bgClass} text-white text-xs px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> <span>${message}</span>`;
             container.appendChild(toast);
-            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
             setTimeout(() => {
                 toast.classList.add('opacity-0');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
 
-        async function initApp() {
-            if (supabaseClient) {
-                await fetchSupabaseData();
+        function initTheme() {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-sun text-amber-400 text-sm';
             }
-            updateAdminUIState();
-            populateActivePlayerSelect();
-            renderCalendar();
-            renderRightPanel();
         }
 
-        async function fetchSupabaseData() {
-            if (!supabaseClient) return;
-            try {
-                let { data: pData } = await supabaseClient.from('players').select('*');
-                if (pData && pData.length > 0) {
-                    players = pData;
-                    localStorage.setItem('nmbc_players', JSON.stringify(players));
-                }
-
-                let { data: aData } = await supabaseClient.from('availability').select('*');
-                if (aData) {
-                    let map = {};
-                    aData.forEach(row => {
-                        if (!map[row.date]) map[row.date] = {};
-                        map[row.date][row.player_id] = row.status;
-                    });
-                    availability = map;
-                    localStorage.setItem('nmbc_availability', JSON.stringify(availability));
-                }
-
-                let { data: mData } = await supabaseClient.from('matches').select('*');
-                if (mData) {
-                    matches = mData;
-                    localStorage.setItem('nmbc_matches', JSON.stringify(matches));
-                }
-            } catch (e) {
-                console.error("Supabase sync error:", e);
-            }
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-sun text-amber-400 text-sm' : 'fa-solid fa-moon text-sm';
         }
 
         function handleAdminToggle() {
-            if (isAdminLoggedIn) {
-                openModal('adminSettingsModal');
-            } else {
-                openModal('adminModal');
-            }
+            if (isAdmin) openModal('adminSettingsModal');
+            else openModal('adminModal');
         }
 
         function verifyAdminPassword() {
             const input = document.getElementById('adminPasswordInput').value;
             if (input === adminPassword) {
-                isAdminLoggedIn = true;
-                localStorage.setItem('nmbc_is_admin', 'true');
+                isAdmin = true;
+                document.getElementById('adminAuthText').innerText = 'Admin Active';
+                document.getElementById('adminLockIcon').className = 'fa-solid fa-unlock text-emerald-400';
+                document.getElementById('rosterLockBadge').className = 'fa-solid fa-unlock text-[10px] ml-0.5 text-brand-200';
+                document.getElementById('matchLockBadge').className = 'fa-solid fa-unlock text-[10px] ml-0.5 text-indigo-200';
                 closeModal('adminModal');
                 document.getElementById('adminPasswordInput').value = '';
-                updateAdminUIState();
-                showToast("Logged in as Admin", "success");
+                renderCalendar();
+                renderSelectedDatePanel();
+                showToast('Logged in as Admin', 'success');
             } else {
-                showToast("Incorrect Password", "error");
+                showToast('Incorrect password', 'error');
             }
         }
 
         function changeAdminPassword() {
-            const newPwd = document.getElementById('newAdminPasswordInput').value.trim();
-            if (!newPwd) {
-                showToast("Password cannot be empty", "error");
-                return;
+            const newPass = document.getElementById('newAdminPasswordInput').value.trim();
+            if (newPass) {
+                adminPassword = newPass;
+                document.getElementById('newAdminPasswordInput').value = '';
+                closeModal('adminSettingsModal');
+                showToast('Admin password updated', 'success');
             }
-            adminPassword = newPwd;
-            localStorage.setItem('nmbc_admin_pwd', newPwd);
-            document.getElementById('newAdminPasswordInput').value = '';
-            closeModal('adminSettingsModal');
-            showToast("Admin Password Updated", "success");
+        }
+
+        function resetAdminPasswordToDefault() {
+            adminPassword = '123';
+            showToast("Admin password reset to '123'", 'success');
         }
 
         function adminLogout() {
-            isAdminLoggedIn = false;
-            localStorage.setItem('nmbc_is_admin', 'false');
+            isAdmin = false;
+            document.getElementById('adminAuthText').innerText = 'Admin Login';
+            document.getElementById('adminLockIcon').className = 'fa-solid fa-lock text-amber-400';
+            document.getElementById('rosterLockBadge').className = 'fa-solid fa-lock text-[10px] ml-0.5 text-brand-200';
+            document.getElementById('matchLockBadge').className = 'fa-solid fa-lock text-[10px] ml-0.5 text-indigo-200';
             closeModal('adminSettingsModal');
-            updateAdminUIState();
-            showToast("Logged out of Admin Mode");
+            renderCalendar();
+            renderSelectedDatePanel();
+            showToast('Logged out of Admin');
+        }
+
+        function verifyPlayerLogin() {
+            const selectedId = document.getElementById('playerSelectInput').value;
+            const password = document.getElementById('playerPasswordInput').value;
+
+            if (!selectedId) return showToast('Please select a player', 'error');
+
+            const player = state.players.find(p => p.id === selectedId);
+            if (player && (player.password === password || (!player.password && password === '123'))) {
+                activePlayerId = player.id;
+                document.getElementById('loggedInPlayerName').innerText = player.name;
+                document.getElementById('playerLoginBtn').classList.add('hidden');
+                document.getElementById('playerLoggedInBadge').classList.remove('hidden');
+                document.getElementById('activePlayerNameDisplay').innerText = player.name;
+                
+                closeModal('playerLoginModal');
+                document.getElementById('playerPasswordInput').value = '';
+                renderCalendar();
+                renderSelectedDatePanel();
+                showToast(`Logged in as ${player.name}`, 'success');
+            } else {
+                showToast('Incorrect player password', 'error');
+            }
+        }
+
+        async function updatePlayerPassword() {
+            const oldPass = document.getElementById('oldPlayerPasswordInput').value;
+            const newPass = document.getElementById('newPlayerPasswordChangeInput').value.trim();
+
+            if (!oldPass || !newPass) return showToast('Please fill in both fields', 'error');
+
+            const player = state.players.find(p => p.id === activePlayerId);
+            if (!player) return showToast('No player logged in', 'error');
+
+            if (player.password !== oldPass && !(player.password === undefined && oldPass === '123')) {
+                return showToast('Incorrect old password', 'error');
+            }
+
+            player.password = newPass;
+            saveStateLocally();
+
+            if (supabaseClient) {
+                await supabaseClient.from('players').update({ password: newPass }).eq('id', player.id);
+            }
+
+            document.getElementById('oldPlayerPasswordInput').value = '';
+            document.getElementById('newPlayerPasswordChangeInput').value = '';
+            closeModal('changePlayerPasswordModal');
+            showToast('Password updated successfully', 'success');
+        }
+
+        function logoutPlayer() {
+            activePlayerId = '';
+            document.getElementById('playerLoginBtn').classList.remove('hidden');
+            document.getElementById('playerLoggedInBadge').classList.add('hidden');
+            document.getElementById('activePlayerNameDisplay').innerText = 'Logged In Player';
+            renderCalendar();
+            renderSelectedDatePanel();
+            showToast('Logged out');
         }
 
         function requireAdmin(callback) {
-            if (isAdminLoggedIn) {
-                callback();
-            } else {
-                openModal('adminModal');
-            }
+            if (isAdmin) callback();
+            else openModal('adminModal');
         }
 
-        function updateAdminUIState() {
-            const authText = document.getElementById('adminAuthText');
-            const authBtn = document.getElementById('adminAuthBtn');
-            const lockIcon = document.getElementById('adminLockIcon');
-            const modeBadge = document.getElementById('modeBadge');
-
-            if (isAdminLoggedIn) {
-                authText.innerText = "Admin Settings";
-                authBtn.classList.replace('bg-slate-800', 'bg-brand-700');
-                lockIcon.className = "fa-solid fa-lock-open text-emerald-300";
-                modeBadge.innerHTML = `<i class="fa-solid fa-user-shield text-xs"></i><span>Admin View</span>`;
-                modeBadge.className = "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
-            } else {
-                authText.innerText = "Admin Login";
-                authBtn.classList.replace('bg-brand-700', 'bg-slate-800');
-                lockIcon.className = "fa-solid fa-lock text-amber-400";
-                modeBadge.innerHTML = `<i class="fa-solid fa-eye text-xs"></i><span>Player View</span>`;
-                modeBadge.className = "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20";
-            }
-            renderCalendar();
-            renderRightPanel();
+        function openModal(id) {
+            if (id === 'addPlayerModal') renderRosterList();
+            if (id === 'playerLoginModal') renderPlayerSelectDropdown();
+            document.getElementById(id).classList.remove('hidden');
         }
 
-        function populateActivePlayerSelect() {
-            const select = document.getElementById('activePlayerSelect');
-            select.innerHTML = '<option value="">-- Select Active Player --</option>';
-            players.forEach(p => {
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function renderPlayerSelectDropdown() {
+            const select = document.getElementById('playerSelectInput');
+            select.innerHTML = '<option value="">-- Choose Player --</option>';
+            
+            let filtered = state.players;
+            if (activeTeamFilter !== 'ALL') {
+                filtered = state.players.filter(p => p.teams && p.teams.includes(activeTeamFilter));
+            }
+
+            filtered.forEach(p => {
                 const opt = document.createElement('option');
                 opt.value = p.id;
-                opt.textContent = p.name;
-                if (p.id === activePlayerId) opt.selected = true;
+                opt.innerText = p.name;
                 select.appendChild(opt);
             });
-            updateActivePlayerDisplay();
         }
 
-        function setActivePlayer(id) {
-            activePlayerId = id;
-            localStorage.setItem('nmbc_active_player', id);
-            updateActivePlayerDisplay();
+        function renderRosterList() {
+            const list = document.getElementById('rosterPlayersList');
+            list.innerHTML = '';
+            if (state.players.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 py-2">No players registered.</p>';
+                return;
+            }
+
+            state.players.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs';
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-slate-800 dark:text-slate-200">${p.name}</span>
+                        <span class="text-[10px] text-slate-400">(${p.teams ? p.teams.join(', ') : 'No Teams'})</span>
+                    </div>
+                    <button onclick="removePlayer('${p.id}')" class="text-rose-500 hover:text-rose-700 p-1" aria-label="Remove Player"><i class="fa-solid fa-trash"></i></button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function addPlayer() {
+            const nameInput = document.getElementById('newPlayerNameInput');
+            const passInput = document.getElementById('newPlayerPasswordInput');
+            const name = nameInput.value.trim();
+            const password = passInput.value.trim() || '123';
+
+            if (!name) return showToast('Please enter a player name', 'error');
+
+            const selectedTeams = Array.from(document.querySelectorAll('#teamCheckboxes input:checked')).map(cb => cb.value);
+            const newPlayer = {
+                id: 'p_' + Date.now(),
+                name: name,
+                password: password,
+                teams: selectedTeams
+            };
+
+            state.players.push(newPlayer);
+            saveStateLocally();
+
+            if (supabaseClient) {
+                await supabaseClient.from('players').insert([newPlayer]);
+            }
+
+            nameInput.value = '';
+            passInput.value = '';
+            document.querySelectorAll('#teamCheckboxes input').forEach(cb => cb.checked = false);
+            
+            renderRosterList();
+            renderPlayerSelectDropdown();
             renderCalendar();
-            renderRightPanel();
+            renderSelectedDatePanel();
+            showToast(`Added ${name} to roster`, 'success');
         }
 
-        function updateActivePlayerDisplay() {
-            const activePlayer = players.find(p => p.id === activePlayerId);
-            document.getElementById('activePlayerNameDisplay').innerText = activePlayer ? activePlayer.name : '--';
+        async function removePlayer(id) {
+            state.players = state.players.filter(p => p.id !== id);
+            if (activePlayerId === id) logoutPlayer();
+            
+            saveStateLocally();
+            if (supabaseClient) {
+                await supabaseClient.from('players').delete().eq('id', id);
+            }
+
+            renderRosterList();
+            renderPlayerSelectDropdown();
+            renderCalendar();
+            renderSelectedDatePanel();
+            showToast('Player removed', 'info');
         }
 
         function setTeamFilter(teamId) {
             activeTeamFilter = teamId;
             document.querySelectorAll('.team-filter-btn').forEach(btn => {
-                btn.className = "team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 transition whitespace-nowrap";
+                btn.className = 'team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap';
             });
-            const activeBtn = document.getElementById(`filter-btn-${teamId}`);
-            if (activeBtn) activeBtn.className = "team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white shadow-sm transition whitespace-nowrap";
+            document.getElementById(`filter-btn-${teamId}`).className = 'team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white shadow-sm transition whitespace-nowrap';
+
+            renderPlayerSelectDropdown();
             renderCalendar();
-            renderRightPanel();
+            renderSelectedDatePanel();
         }
 
         function toggleMultiSelectMode() {
-            isMultiSelectEnabled = !isMultiSelectEnabled;
+            isMultiSelect = !isMultiSelect;
             const btn = document.getElementById('multiSelectToggleBtn');
-            const text = document.getElementById('multiSelectToggleText');
-            if (isMultiSelectEnabled) {
-                btn.classList.replace('bg-slate-100', 'bg-brand-100');
-                btn.classList.add('dark:bg-brand-900/40', 'border-brand-500');
-                text.innerText = "Multi-Select: ON";
-                showToast("Multi-select active. Click dates to add/remove.", "info");
+            const txt = document.getElementById('multiSelectToggleText');
+            if (isMultiSelect) {
+                btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white shadow-sm transition flex items-center gap-1.5';
+                txt.innerText = 'Multi-Select: ON';
             } else {
-                btn.classList.replace('bg-brand-100', 'bg-slate-100');
-                btn.classList.remove('dark:bg-brand-900/40', 'border-brand-500');
-                text.innerText = "Multi-Select: OFF";
+                btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 transition flex items-center gap-1.5';
+                txt.innerText = 'Multi-Select: OFF';
+                if (selectedDates.length > 1) {
+                    selectedDates = [selectedDates[0]];
+                }
             }
-        }
-
-        function changeMonth(delta) {
-            currentMonth += delta;
-            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
             renderCalendar();
+            renderSelectedDatePanel();
         }
 
-        function jumpToToday() {
-            const today = new Date();
-            currentYear = today.getFullYear();
-            currentMonth = today.getMonth();
-            selectedDates = [formatDate(today)];
-            renderCalendar();
-            renderRightPanel();
-        }
-
-        function selectDate(dateStr, e) {
-            if (isMultiSelectEnabled || (e && (e.ctrlKey || e.metaKey))) {
+        function handleDateClick(dateStr) {
+            if (isMultiSelect) {
                 if (selectedDates.includes(dateStr)) {
                     if (selectedDates.length > 1) {
                         selectedDates = selectedDates.filter(d => d !== dateStr);
@@ -638,192 +836,153 @@
                 selectedDates = [dateStr];
             }
             renderCalendar();
-            renderRightPanel();
+            renderSelectedDatePanel();
         }
 
         function clearDateSelection() {
-            selectedDates = [formatDate(new Date())];
+            selectedDates = [formatDateString(new Date())];
             renderCalendar();
-            renderRightPanel();
+            renderSelectedDatePanel();
         }
 
         function selectCurrentWeek() {
-            const dates = [];
             const curr = new Date();
             const first = curr.getDate() - curr.getDay() + 1;
+            selectedDates = [];
             for (let i = 0; i < 7; i++) {
                 const next = new Date(curr.setDate(first + i));
-                dates.push(formatDate(next));
+                selectedDates.push(formatDateString(next));
             }
-            selectedDates = dates;
             renderCalendar();
-            renderRightPanel();
+            renderSelectedDatePanel();
         }
 
         function selectCurrentMonth() {
-            const dates = [];
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            selectedDates = [];
             for (let d = 1; d <= daysInMonth; d++) {
-                const dateObj = new Date(currentYear, currentMonth, d);
-                dates.push(formatDate(dateObj));
+                selectedDates.push(formatDateString(new Date(year, month, d)));
             }
-            selectedDates = dates;
             renderCalendar();
-            renderRightPanel();
-        }
-
-        function selectWeekends() {
-            const dates = [];
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateObj = new Date(currentYear, currentMonth, d);
-                const day = dateObj.getDay();
-                if (day === 0 || day === 6) dates.push(formatDate(dateObj));
-            }
-            selectedDates = dates;
-            renderCalendar();
-            renderRightPanel();
+            renderSelectedDatePanel();
         }
 
         function selectWeekdays() {
-            const dates = [];
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            selectedDates = [];
             for (let d = 1; d <= daysInMonth; d++) {
-                const dateObj = new Date(currentYear, currentMonth, d);
-                const day = dateObj.getDay();
-                if (day !== 0 && day !== 6) dates.push(formatDate(dateObj));
+                const dt = new Date(year, month, d);
+                if (dt.getDay() !== 0 && dt.getDay() !== 6) {
+                    selectedDates.push(formatDateString(dt));
+                }
             }
-            selectedDates = dates;
             renderCalendar();
-            renderRightPanel();
+            renderSelectedDatePanel();
         }
 
         function applyDateRange() {
-            const startStr = document.getElementById('rangeStartInput').value;
-            const endStr = document.getElementById('rangeEndInput').value;
-            if (!startStr || !endStr) {
-                showToast("Select both start and end dates", "error");
-                return;
+            const startVal = document.getElementById('rangeStartInput').value;
+            const endVal = document.getElementById('rangeEndInput').value;
+            if (!startVal || !endVal) return showToast('Please set both start and end dates', 'error');
+
+            let start = new Date(startVal);
+            let end = new Date(endVal);
+            if (start > end) return showToast('Start date must be before end date', 'error');
+
+            selectedDates = [];
+            while (start <= end) {
+                selectedDates.push(formatDateString(start));
+                start.setDate(start.getDate() + 1);
             }
-            const start = new Date(startStr);
-            const end = new Date(endStr);
-            if (start > end) {
-                showToast("Start date must be before end date", "error");
-                return;
-            }
-            const dates = [];
-            let curr = new Date(start);
-            while (curr <= end) {
-                dates.push(formatDate(curr));
-                curr.setDate(curr.getDate() + 1);
-            }
-            selectedDates = dates;
             renderCalendar();
-            renderRightPanel();
+            renderSelectedDatePanel();
         }
 
-        async function setAvailabilityForSelectedDates(status) {
-            if (!activePlayerId) {
-                showToast("Please select your name from the player list top right", "error");
-                return;
-            }
-
-            const upsertBatch = [];
-
-            selectedDates.forEach(dateStr => {
-                if (!availability[dateStr]) availability[dateStr] = {};
-                availability[dateStr][activePlayerId] = status;
-                upsertBatch.push({ date: dateStr, player_id: activePlayerId, status: status });
-            });
-
-            localStorage.setItem('nmbc_availability', JSON.stringify(availability));
-
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('availability').upsert(upsertBatch, { onConflict: 'date,player_id' });
-                } catch (e) {
-                    console.error("Supabase Save Error:", e);
-                }
-            }
-
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
             renderCalendar();
-            renderRightPanel();
-            showToast(`Status set to ${status.toUpperCase()} for ${selectedDates.length} date(s)`, "success");
+        }
+
+        function jumpToToday() {
+            currentDate = new Date();
+            selectedDates = [formatDateString(currentDate)];
+            renderCalendar();
+            renderSelectedDatePanel();
         }
 
         function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('calendarMonthYear').innerText = `${monthNames[month]} ${year}`;
+
+            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7; 
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
 
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            document.getElementById('calendarMonthYear').innerText = `${monthNames[currentMonth]} ${currentYear}`;
-
-            const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
-            const adjustedFirstDay = (firstDayIndex === 0 ? 6 : firstDayIndex - 1);
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-            for (let i = 0; i < adjustedFirstDay; i++) {
+            for (let i = 0; i < firstDayIndex; i++) {
                 const emptyCell = document.createElement('div');
-                emptyCell.className = "h-20 sm:h-24 bg-slate-100/40 dark:bg-slate-900/20 rounded-xl border border-transparent";
+                emptyCell.className = 'h-20 sm:h-24 rounded-2xl bg-slate-100/50 dark:bg-slate-800/30 border border-transparent';
                 grid.appendChild(emptyCell);
             }
 
-            const todayStr = formatDate(new Date());
+            const todayStr = formatDateString(new Date());
 
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateObj = new Date(currentYear, currentMonth, d);
-                const dateStr = formatDate(dateObj);
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateObj = new Date(year, month, day);
+                const dateStr = formatDateString(dateObj);
                 const isSelected = selectedDates.includes(dateStr);
                 const isToday = dateStr === todayStr;
 
                 const dayCell = document.createElement('div');
-                dayCell.onclick = (e) => selectDate(dateStr, e);
+                dayCell.onclick = () => handleDateClick(dateStr);
 
-                let cellClasses = "h-20 sm:h-24 p-1.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ";
+                let cellClasses = 'h-20 sm:h-24 p-1.5 sm:p-2 rounded-2xl border transition cursor-pointer flex flex-col justify-between relative overflow-hidden ';
                 if (isSelected) {
-                    cellClasses += "bg-brand-50/80 dark:bg-brand-900/30 border-brand-500 shadow-sm ring-1 ring-brand-500 ";
+                    cellClasses += 'bg-brand-500/10 dark:bg-brand-500/20 border-brand-500 ring-2 ring-brand-500/30 ';
                 } else if (isToday) {
-                    cellClasses += "bg-white dark:bg-slate-800 border-indigo-500 font-bold ";
+                    cellClasses += 'bg-slate-100 dark:bg-slate-700/60 border-brand-500/50 ';
                 } else {
-                    cellClasses += "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700/60 hover:border-slate-300 dark:hover:border-slate-600 ";
+                    cellClasses += 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-slate-200 dark:border-slate-700/60 ';
                 }
 
                 dayCell.className = cellClasses;
 
-                let activeStatusClass = "";
-                if (activePlayerId && availability[dateStr] && availability[dateStr][activePlayerId]) {
-                    const st = availability[dateStr][activePlayerId];
-                    if (st === 'available') activeStatusClass = "border-l-4 border-l-emerald-500";
-                    else if (st === 'tentative') activeStatusClass = "border-l-4 border-l-amber-500";
-                    else if (st === 'unavailable') activeStatusClass = "border-l-4 border-l-rose-500";
-                }
-                if (activeStatusClass) dayCell.className += " " + activeStatusClass;
-
-                let availCount = 0;
-                let filteredPlayers = players;
-                if (activeTeamFilter !== 'ALL') {
-                    filteredPlayers = players.filter(p => p.teams.includes(activeTeamFilter));
+                let statusDot = '';
+                if (activePlayerId) {
+                    const status = state.availability[`${activePlayerId}_${dateStr}`];
+                    if (status === 'available') statusDot = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span>';
+                    if (status === 'tentative') statusDot = '<span class="w-2 h-2 rounded-full bg-amber-500"></span>';
+                    if (status === 'unavailable') statusDot = '<span class="w-2 h-2 rounded-full bg-rose-500"></span>';
                 }
 
-                filteredPlayers.forEach(p => {
-                    if (availability[dateStr] && availability[dateStr][p.id] === 'available') {
-                        availCount++;
-                    }
-                });
-
-                const dayMatches = matches.filter(m => m.date === dateStr && (activeTeamFilter === 'ALL' || m.team === activeTeamFilter));
+                let matchesHtml = '';
+                const dayMatches = state.matches.filter(m => m.date === dateStr);
+                if (dayMatches.length > 0) {
+                    dayMatches.forEach(m => {
+                        const teamInfo = TEAMS.find(t => t.id === m.team) || { color: 'bg-indigo-500' };
+                        matchesHtml += `
+                            <div class="text-[9px] sm:text-[10px] font-bold ${teamInfo.color} text-white px-1.5 py-0.5 rounded-lg truncate shadow-xs">
+                                ${m.team} vs ${m.opponent}
+                            </div>
+                        `;
+                    });
+                }
 
                 dayCell.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold ${isToday ? 'bg-indigo-600 text-white w-5 h-5 rounded-full flex items-center justify-center' : 'text-slate-700 dark:text-slate-300'}">${d}</span>
-                        ${availCount > 0 ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">${availCount} <i class="fa-solid fa-user text-[8px]"></i></span>` : ''}
+                    <div class="flex items-center justify-between w-full">
+                        <span class="text-xs font-bold ${isToday ? 'text-brand-600 dark:text-brand-400' : 'text-slate-700 dark:text-slate-300'}">${day}</span>
+                        ${statusDot}
                     </div>
-                    <div class="space-y-1 my-auto">
-                        ${dayMatches.map(m => `
-                            <div class="text-[9px] font-bold px-1 py-0.5 rounded truncate bg-indigo-500 text-white">
-                                ${m.team} v ${m.opponent}
-                            </div>
-                        `).join('')}
+                    <div class="space-y-1 mt-1 overflow-y-auto scrollbar-thin max-h-12">
+                        ${matchesHtml}
                     </div>
                 `;
 
@@ -831,29 +990,144 @@
             }
         }
 
-        function renderRightPanel() {
+        async function setAvailabilityForSelectedDates(status) {
+            let targetPlayerId = activePlayerId;
+
+            // If Admin is active, use the player selected in the admin override dropdown
+            if (isAdmin) {
+                const adminSelect = document.getElementById('adminTargetPlayerSelect');
+                if (adminSelect && adminSelect.value) {
+                    targetPlayerId = adminSelect.value;
+                } else if (state.players.length > 0) {
+                    targetPlayerId = state.players[0].id;
+                }
+            }
+
+            if (!targetPlayerId) {
+                openModal('playerLoginModal');
+                return showToast('Please log in as a player or select a player from the admin dropdown', 'error');
+            }
+
+            const targetPlayer = state.players.find(p => p.id === targetPlayerId);
+            const playerName = targetPlayer ? targetPlayer.name : 'Player';
+
+            const updates = [];
+            selectedDates.forEach(d => {
+                state.availability[`${targetPlayerId}_${d}`] = status;
+                updates.push({
+                    player_id: targetPlayerId,
+                    date: d,
+                    status: status
+                });
+            });
+
+            saveStateLocally();
+
+            if (supabaseClient) {
+                await supabaseClient.from('availability').upsert(updates);
+            }
+
+            renderCalendar();
+            renderSelectedDatePanel();
+            showToast(`Updated ${playerName}'s availability to ${status}`, 'success');
+        }
+
+        async function saveMatch() {
+            const team = document.getElementById('matchTeamSelect').value;
+            const opponent = document.getElementById('matchOpponentInput').value.trim();
+            const location = document.getElementById('matchTypeSelect').value;
+
+            if (!opponent) return showToast('Please enter an opponent name', 'error');
+            if (selectedDates.length === 0) return showToast('Select a date first', 'error');
+
+            const dateStr = selectedDates[0];
+            const newMatch = {
+                id: 'm_' + Date.now(),
+                date: dateStr,
+                team: team,
+                opponent: opponent,
+                location: location
+            };
+
+            state.matches.push(newMatch);
+            saveStateLocally();
+
+            if (supabaseClient) {
+                await supabaseClient.from('matches').insert([newMatch]);
+            }
+
+            document.getElementById('matchOpponentInput').value = '';
+            closeModal('addMatchModal');
+            renderCalendar();
+            renderSelectedDatePanel();
+            showToast('Match scheduled successfully', 'success');
+        }
+
+        async function deleteMatch(matchId) {
+            state.matches = state.matches.filter(m => m.id !== matchId);
+            saveStateLocally();
+
+            if (supabaseClient) {
+                await supabaseClient.from('matches').delete().eq('id', matchId);
+            }
+
+            renderCalendar();
+            renderSelectedDatePanel();
+            showToast('Match removed', 'info');
+        }
+
+        function renderSelectedDatePanel() {
+            // Handle Admin Player Override Dropdown Visibility & Options
+            const adminContainer = document.getElementById('adminPlayerSelectContainer');
+            const adminSelect = document.getElementById('adminTargetPlayerSelect');
+            
+            if (isAdmin) {
+                adminContainer.classList.remove('hidden');
+                const currentSelectedVal = adminSelect.value;
+                adminSelect.innerHTML = '';
+                
+                state.players.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.innerText = p.name;
+                    adminSelect.appendChild(opt);
+                });
+                
+                if (currentSelectedVal && state.players.some(p => p.id === currentSelectedVal)) {
+                    adminSelect.value = currentSelectedVal;
+                }
+            } else {
+                adminContainer.classList.add('hidden');
+            }
+
             const count = selectedDates.length;
             document.getElementById('selectedDateTitle').innerText = count === 1 ? selectedDates[0] : `${count} dates selected`;
-            document.getElementById('selectionCountBadge').innerText = `${count} date(s)`;
+            document.getElementById('selectionCountBadge').innerText = `${count} date${count > 1 ? 's' : ''}`;
+            document.getElementById('rosterDateLabel').innerText = count === 1 ? `(${selectedDates[0]})` : '';
+
+            const activePlayer = state.players.find(p => p.id === activePlayerId);
+            document.getElementById('activePlayerNameDisplay').innerText = activePlayer ? activePlayer.name : (isAdmin ? 'Admin Override' : 'Logged In Player');
 
             const matchesContainer = document.getElementById('dateMatchesContainer');
             const matchesList = document.getElementById('dateMatchesList');
             matchesList.innerHTML = '';
 
-            const selectedMatches = matches.filter(m => selectedDates.includes(m.date));
-            if (selectedMatches.length > 0) {
+            const activeMatches = state.matches.filter(m => selectedDates.includes(m.date));
+            if (activeMatches.length > 0) {
                 matchesContainer.classList.remove('hidden');
-                selectedMatches.forEach(m => {
-                    const item = document.createElement('div');
-                    item.className = "bg-indigo-50 dark:bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-200 dark:border-indigo-800/40 flex items-center justify-between text-xs";
-                    item.innerHTML = `
+                activeMatches.forEach(m => {
+                    const teamInfo = TEAMS.find(t => t.id === m.team) || { name: m.team };
+                    const card = document.createElement('div');
+                    card.className = 'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs flex items-center justify-between';
+                    card.innerHTML = `
                         <div>
-                            <span class="font-bold text-indigo-700 dark:text-indigo-300">${m.team} vs ${m.opponent}</span>
-                            <span class="block text-[10px] text-slate-500">${m.type} Match (${m.date})</span>
+                            <span class="font-bold text-brand-600 dark:text-brand-400">[${teamInfo.name}]</span>
+                            <span class="text-slate-800 dark:text-slate-200">vs ${m.opponent} (${m.location})</span>
+                            <span class="block text-[10px] text-slate-400">${m.date}</span>
                         </div>
-                        ${isAdminLoggedIn ? `<button onclick="deleteMatch('${m.id}')" class="text-rose-500 hover:text-rose-700 text-xs px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>` : ''}
+                        ${isAdmin ? `<button onclick="deleteMatch('${m.id}')" class="text-rose-500 hover:text-rose-700 p-1" aria-label="Delete Match"><i class="fa-solid fa-trash"></i></button>` : ''}
                     `;
-                    matchesList.appendChild(item);
+                    matchesList.appendChild(card);
                 });
             } else {
                 matchesContainer.classList.add('hidden');
@@ -862,164 +1136,84 @@
             const readinessList = document.getElementById('teamReadinessList');
             readinessList.innerHTML = '';
 
+            const targetDate = selectedDates[0];
+
             TEAMS.forEach(team => {
                 if (activeTeamFilter !== 'ALL' && activeTeamFilter !== team.id) return;
 
-                const teamPlayers = players.filter(p => p.teams.includes(team.id));
+                const teamPlayers = state.players.filter(p => p.teams && p.teams.includes(team.id));
                 let availableCount = 0;
+                let tentativeCount = 0;
 
                 teamPlayers.forEach(p => {
-                    let isAvailAll = selectedDates.every(d => availability[d] && availability[d][p.id] === 'available');
-                    if (isAvailAll) availableCount++;
+                    const status = state.availability[`${p.id}_${targetDate}`];
+                    if (status === 'available') availableCount++;
+                    if (status === 'tentative') tentativeCount++;
                 });
 
-                const pct = Math.min(100, Math.round((availableCount / 6) * 100));
-                const item = document.createElement('div');
-                item.className = "bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 space-y-1 text-xs";
-                item.innerHTML = `
-                    <div class="flex justify-between items-center font-semibold">
+                const isReady = availableCount >= 6;
+                const percent = Math.min(Math.round((availableCount / 6) * 100), 100);
+
+                const readinessItem = document.createElement('div');
+                readinessItem.className = 'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/60 text-xs space-y-1.5';
+                readinessItem.innerHTML = `
+                    <div class="flex items-center justify-between font-semibold">
                         <span class="text-slate-700 dark:text-slate-300">${team.name}</span>
-                        <span class="${availableCount >= 6 ? 'text-emerald-500 font-bold' : 'text-slate-500'}">${availableCount}/6 Ready</span>
+                        <span class="${isReady ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-500'}">
+                            ${availableCount}/6 Available ${tentativeCount > 0 ? `(+${tentativeCount} ?) ` : ''}
+                        </span>
                     </div>
-                    <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                        <div class="h-full bg-brand-500 transition-all duration-300" style="width: ${pct}%"></div>
+                    <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full ${isReady ? 'bg-emerald-500' : 'bg-brand-500'} transition-all duration-300" style="width: ${percent}%"></div>
                     </div>
                 `;
-                readinessList.appendChild(item);
+                readinessList.appendChild(readinessItem);
             });
-        }
 
-        async function addPlayer() {
-            const name = document.getElementById('newPlayerNameInput').value.trim();
-            if (!name) {
-                showToast("Enter a player name", "error");
-                return;
+            // Render Player Names Breakdown by Status for the selected date
+            const rosterBreakdown = document.getElementById('availabilityRosterBreakdown');
+            rosterBreakdown.innerHTML = '';
+
+            let filteredPlayers = state.players;
+            if (activeTeamFilter !== 'ALL') {
+                filteredPlayers = state.players.filter(p => p.teams && p.teams.includes(activeTeamFilter));
             }
 
-            const selectedTeams = [];
-            document.querySelectorAll('#teamCheckboxes input:checked').forEach(cb => selectedTeams.push(cb.value));
+            const availableNames = [];
+            const tentativeNames = [];
+            const unavailableNames = [];
+            const unrespondedNames = [];
 
-            const newPlayer = { id: 'p_' + Date.now(), name: name, teams: selectedTeams };
-            players.push(newPlayer);
-            localStorage.setItem('nmbc_players', JSON.stringify(players));
+            filteredPlayers.forEach(p => {
+                const status = state.availability[`${p.id}_${targetDate}`];
+                if (status === 'available') availableNames.push(p.name);
+                else if (status === 'tentative') tentativeNames.push(p.name);
+                else if (status === 'unavailable') unavailableNames.push(p.name);
+                else unrespondedNames.push(p.name);
+            });
 
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('players').insert([newPlayer]);
-                } catch (e) { console.error(e); }
-            }
-
-            document.getElementById('newPlayerNameInput').value = '';
-            populateActivePlayerSelect();
-            renderRosterList();
-            renderCalendar();
-            renderRightPanel();
-            showToast("Player added to roster", "success");
-        }
-
-        async function deletePlayer(id) {
-            players = players.filter(p => p.id !== id);
-            localStorage.setItem('nmbc_players', JSON.stringify(players));
-
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('players').delete().eq('id', id);
-                } catch (e) { console.error(e); }
-            }
-
-            populateActivePlayerSelect();
-            renderRosterList();
-            renderCalendar();
-            renderRightPanel();
-            showToast("Player removed");
-        }
-
-        function renderRosterList() {
-            const list = document.getElementById('rosterPlayersList');
-            list.innerHTML = '';
-            players.forEach(p => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs";
-                item.innerHTML = `
-                    <div>
-                        <span class="font-bold text-slate-800 dark:text-slate-200">${p.name}</span>
-                        <span class="text-[10px] text-slate-400 block">${p.teams.join(', ')}</span>
+            const createStatusGroup = (title, names, badgeClass, dotClass) => {
+                if (names.length === 0) return '';
+                return `
+                    <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-700/60 text-xs space-y-1">
+                        <div class="font-bold flex items-center justify-between text-slate-700 dark:text-slate-300">
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${dotClass}"></span> ${title} (${names.length})</span>
+                        </div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 pl-3.5">
+                            ${names.join(', ')}
+                        </div>
                     </div>
-                    <button onclick="deletePlayer('${p.id}')" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
                 `;
-                list.appendChild(item);
-            });
-        }
-
-        async function saveMatch() {
-            const team = document.getElementById('matchTeamSelect').value;
-            const opponent = document.getElementById('matchOpponentInput').value.trim();
-            const type = document.getElementById('matchTypeSelect').value;
-
-            if (!opponent) {
-                showToast("Enter opponent name", "error");
-                return;
-            }
-
-            const newMatch = {
-                id: 'm_' + Date.now(),
-                date: selectedDates[0],
-                team: team,
-                opponent: opponent,
-                type: type
             };
 
-            matches.push(newMatch);
-            localStorage.setItem('nmbc_matches', JSON.stringify(matches));
+            let rosterHtml = '';
+            rosterHtml += createStatusGroup('Available (Yes)', availableNames, 'bg-emerald-500/10 text-emerald-600', 'bg-emerald-500');
+            rosterHtml += createStatusGroup('Tentative (?)', tentativeNames, 'bg-amber-500/10 text-amber-600', 'bg-amber-500');
+            rosterHtml += createStatusGroup('Unavailable (No)', unavailableNames, 'bg-rose-500/10 text-rose-600', 'bg-rose-500');
+            rosterHtml += createStatusGroup('Not Responded', unrespondedNames, 'bg-slate-500/10 text-slate-500', 'bg-slate-400');
 
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('matches').insert([newMatch]);
-                } catch (e) { console.error(e); }
-            }
-
-            document.getElementById('matchOpponentInput').value = '';
-            closeModal('addMatchModal');
-            renderCalendar();
-            renderRightPanel();
-            showToast("Fixture scheduled", "success");
+            rosterBreakdown.innerHTML = rosterHtml || '<p class="text-xs text-slate-400 py-1">No players match the current filter.</p>';
         }
-
-        async function deleteMatch(id) {
-            matches = matches.filter(m => m.id !== id);
-            localStorage.setItem('nmbc_matches', JSON.stringify(matches));
-
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('matches').delete().eq('id', id);
-                } catch (e) { console.error(e); }
-            }
-
-            renderCalendar();
-            renderRightPanel();
-            showToast("Match removed");
-        }
-
-        function openModal(id) {
-            if (id === 'addPlayerModal') renderRosterList();
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-            const icon = document.getElementById('themeIcon');
-            if (document.documentElement.classList.contains('dark')) {
-                icon.className = "fa-solid fa-sun text-amber-400 text-sm";
-            } else {
-                icon.className = "fa-solid fa-moon text-sm";
-            }
-        }
-
-        window.onload = initApp;
     </script>
 </body>
 </html>
