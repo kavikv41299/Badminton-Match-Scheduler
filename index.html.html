@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -16,17 +17,13 @@
                         brand: {
                             50: '#f0fdf4',
                             100: '#dcfce7',
+                            200: '#bbf7d0',
+                            400: '#4ade80',
                             500: '#22c55e',
                             600: '#16a34a',
                             700: '#15803d',
                             800: '#166534',
                             900: '#14532d',
-                        },
-                        badminton: {
-                            court: '#0f766e',
-                            teal: '#14b8a6',
-                            accent: '#f59e0b',
-                            dark: '#0f172a'
                         }
                     },
                     fontFamily: {
@@ -42,8 +39,6 @@
         .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
         .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         .dark .scrollbar-thin::-webkit-scrollbar-thumb { background: #334155; }
-        .glass-panel { backdrop-filter: blur(8px); background: rgba(255, 255, 255, 0.85); }
-        .dark .glass-panel { background: rgba(15, 23, 42, 0.85); }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
@@ -51,23 +46,15 @@
     <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <!-- Newcastle Medicals Badminton Club Logo SVG -->
                 <div class="bg-black p-2 rounded-xl border border-slate-800 shadow-lg flex items-center justify-center shrink-0">
                     <svg class="w-10 h-12" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Shuttlecock Cork / Dome -->
                         <path d="M 65 58 C 65 20, 135 20, 135 58 Z" fill="none" stroke="#ffffff" stroke-width="8" stroke-linejoin="round"/>
                         <line x1="66" y1="46" x2="134" y2="46" stroke="#ffffff" stroke-width="6"/>
                         <line x1="62" y1="58" x2="138" y2="58" stroke="#ffffff" stroke-width="8"/>
-
-                        <!-- Monogram Feathers (NM Logo Lines) -->
                         <g stroke="#ffffff" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter">
-                            <!-- Outer Left Stroke -->
                             <line x1="18" y1="188" x2="92" y2="78" />
-                            <!-- Left Inner Stroke & N-M Zig-Zag Lines -->
                             <polyline points="42,188 68,78 100,188 132,78 158,188" />
-                            <!-- Central Downward V Stroke -->
                             <polyline points="88,78 100,146 112,78" />
-                            <!-- Outer Right Stroke -->
                             <line x1="108" y1="78" x2="182" y2="188" />
                         </g>
                     </svg>
@@ -81,15 +68,11 @@
                 </div>
             </div>
 
-            <!-- Navigation Controls: Admin Login and Dark Mode -->
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <!-- Admin Lock/Unlock Button -->
                 <button onclick="handleAdminToggle()" id="adminAuthBtn" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-700 transition shadow-sm">
                     <i id="adminLockIcon" class="fa-solid fa-lock text-amber-400"></i>
                     <span id="adminAuthText">Admin Login</span>
                 </button>
-
-                <!-- Dark Mode Toggle Button -->
                 <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition shadow-sm" title="Toggle Light/Dark Theme">
                     <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
                 </button>
@@ -99,50 +82,28 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-        <!-- Team Filter & Active Player Control Toolbar -->
         <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col md:flex-row items-center justify-between gap-4">
-            
-            <!-- Team Filter Tabs -->
             <div class="w-full md:w-auto flex items-center gap-1.5 overflow-x-auto pb-2 md:pb-0 scrollbar-thin">
-                <button onclick="setTeamFilter('ALL')" id="filter-btn-ALL" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white shadow-sm transition whitespace-nowrap">
-                    All Teams
-                </button>
-                <button onclick="setTeamFilter('1M')" id="filter-btn-1M" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">
-                    1st Mens
-                </button>
-                <button onclick="setTeamFilter('2M')" id="filter-btn-2M" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">
-                    2nd Mens
-                </button>
-                <button onclick="setTeamFilter('3M')" id="filter-btn-3M" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">
-                    3rd Mens
-                </button>
-                <button onclick="setTeamFilter('1X')" id="filter-btn-1X" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">
-                    1st Mixed
-                </button>
-                <button onclick="setTeamFilter('2X')" id="filter-btn-2X" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">
-                    2nd Mixed
-                </button>
-                <button onclick="setTeamFilter('1L')" id="filter-btn-1L" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">
-                    1st Ladies
-                </button>
+                <button onclick="setTeamFilter('ALL')" id="filter-btn-ALL" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white shadow-sm transition whitespace-nowrap">All Teams</button>
+                <button onclick="setTeamFilter('1M')" id="filter-btn-1M" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">1st Mens</button>
+                <button onclick="setTeamFilter('2M')" id="filter-btn-2M" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">2nd Mens</button>
+                <button onclick="setTeamFilter('3M')" id="filter-btn-3M" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">3rd Mens</button>
+                <button onclick="setTeamFilter('1X')" id="filter-btn-1X" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">1st Mixed</button>
+                <button onclick="setTeamFilter('2X')" id="filter-btn-2X" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">2nd Mixed</button>
+                <button onclick="setTeamFilter('1L')" id="filter-btn-1L" class="team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition whitespace-nowrap">1st Ladies</button>
             </div>
 
-            <!-- Selection Mode Toggle & Active Player Selector -->
             <div class="flex items-center justify-between md:justify-end w-full md:w-auto gap-3">
-                
-                <!-- Multi-select Mode Toggle -->
                 <button id="multiSelectToggleBtn" onclick="toggleMultiSelectMode()" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-layer-group text-brand-500"></i>
                     <span id="multiSelectToggleText">Multi-Select: OFF</span>
                 </button>
 
-                <!-- Active View Badge -->
                 <div id="modeBadge" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                     <i class="fa-solid fa-eye text-xs"></i>
                     <span>Player View</span>
                 </div>
 
-                <!-- Active Player Switcher -->
                 <div class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
                     <i class="fa-solid fa-user-check text-brand-600 text-xs"></i>
                     <select id="activePlayerSelect" onchange="setActivePlayer(this.value)" class="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer text-slate-800 dark:text-slate-200">
@@ -150,7 +111,6 @@
                     </select>
                 </div>
 
-                <!-- Manage Roster Button (Admin Protected) -->
                 <button onclick="requireAdmin(() => openModal('addPlayerModal'))" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow transition flex items-center gap-1.5">
                     <i class="fa-solid fa-user-plus"></i>
                     <span>Manage Roster</span>
@@ -160,12 +120,8 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            <!-- Left 2 Columns: Monthly Calendar View -->
             <div class="lg:col-span-2 space-y-4">
                 <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 p-5">
-                    
-                    <!-- Calendar Month Navigator Header -->
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center space-x-3">
                             <h2 id="calendarMonthYear" class="text-xl font-bold text-slate-800 dark:text-slate-100"></h2>
@@ -181,34 +137,27 @@
                         </div>
                     </div>
 
-                    <!-- Days of Week Header -->
                     <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 uppercase tracking-wider mb-2">
                         <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
                     </div>
 
-                    <!-- Calendar Days Grid -->
-                    <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 sm:gap-2">
-                        <!-- Populated dynamically -->
-                    </div>
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 sm:gap-2"></div>
                 </div>
             </div>
 
-            <!-- Right Column: Date Selection Details & Availability Toolbar -->
             <div class="space-y-6">
-
                 <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 p-5 space-y-4">
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
                         <div>
                             <span class="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Date Selection</span>
                             <h3 id="selectedDateTitle" class="text-base font-bold text-slate-900 dark:text-slate-100">1 date selected</h3>
                         </div>
-                        <button id="addMatchBtn" onclick="requireAdmin(() => openModal('addMatchModal'))" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-xl font-semibold shadow transition items-center gap-1">
+                        <button id="addMatchBtn" onclick="requireAdmin(() => openModal('addMatchModal'))" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-xl font-semibold shadow transition flex items-center gap-1">
                             <span>+ Match</span>
                             <i id="matchLockBadge" class="fa-solid fa-lock text-[10px] ml-0.5 text-indigo-200"></i>
                         </button>
                     </div>
 
-                    <!-- Bulk Date Presets & Range Selection -->
                     <div class="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 space-y-3">
                         <div class="flex items-center justify-between text-xs">
                             <span class="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
@@ -217,7 +166,6 @@
                             <button onclick="clearDateSelection()" class="text-[11px] font-semibold text-rose-500 hover:underline">Clear All</button>
                         </div>
 
-                        <!-- Presets Grid -->
                         <div class="grid grid-cols-2 gap-1.5 text-xs">
                             <button onclick="selectCurrentWeek()" class="px-2 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 text-[11px] font-medium transition flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-calendar-week text-teal-500"></i> This Week
@@ -233,7 +181,6 @@
                             </button>
                         </div>
 
-                        <!-- Custom Date Range Sub-Form -->
                         <div class="pt-2 border-t border-slate-200 dark:border-slate-700/60 space-y-1.5">
                             <span class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400">Custom Date Range:</span>
                             <div class="flex items-center gap-1.5 text-xs">
@@ -245,7 +192,6 @@
                         </div>
                     </div>
 
-                    <!-- Availability Action Buttons for Active Player -->
                     <div class="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 space-y-2.5">
                         <div class="flex justify-between items-center text-xs">
                             <span class="font-semibold text-slate-600 dark:text-slate-300">Set Status for <span id="selectionCountBadge" class="bg-brand-500/20 text-brand-600 dark:text-brand-400 font-bold px-1.5 py-0.5 rounded text-[11px]">1 date</span> (<span id="activePlayerNameDisplay" class="text-brand-600 dark:text-brand-400 font-bold">--</span>):</span>
@@ -263,24 +209,17 @@
                         </div>
                     </div>
 
-                    <!-- Scheduled Matches for Selected Date -->
                     <div id="dateMatchesContainer" class="hidden space-y-2">
                         <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Scheduled Fixtures</h4>
-                        <div id="dateMatchesList" class="space-y-2">
-                            <!-- Populated dynamically -->
-                        </div>
+                        <div id="dateMatchesList" class="space-y-2"></div>
                     </div>
 
-                    <!-- Team Readiness Targets Breakdown -->
                     <div class="space-y-2">
                         <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Team Target Readiness (6 Players)</h4>
-                        <div id="teamReadinessList" class="space-y-2">
-                            <!-- Populated dynamically -->
-                        </div>
+                        <div id="teamReadinessList" class="space-y-2"></div>
                     </div>
                 </div>
             </div>
-
         </div>
     </main>
 
@@ -305,7 +244,7 @@
         </div>
     </div>
 
-    <!-- Admin Settings / Change Password Modal (Shown when Admin clicks header button while logged in) -->
+    <!-- Admin Settings Modal -->
     <div id="adminSettingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 dark:border-slate-700 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
@@ -319,7 +258,6 @@
                 <span><i class="fa-solid fa-shield-check text-emerald-500 mr-1.5"></i> You are currently logged in as <strong>Admin</strong>.</span>
             </div>
 
-            <!-- Change Password Form -->
             <div class="space-y-3 pt-1">
                 <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase">Change Admin Password</h4>
                 <div class="space-y-2">
@@ -350,15 +288,11 @@
                 <button onclick="closeModal('addPlayerModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- Existing Players List -->
             <div class="space-y-2">
                 <label class="block text-xs font-semibold text-slate-500 uppercase">Current Roster</label>
-                <div id="rosterPlayersList" class="max-h-40 overflow-y-auto space-y-1.5 scrollbar-thin pr-1">
-                    <!-- Populated dynamically -->
-                </div>
+                <div id="rosterPlayersList" class="max-h-40 overflow-y-auto space-y-1.5 scrollbar-thin pr-1"></div>
             </div>
 
-            <!-- Add Player Form -->
             <div class="pt-2 border-t border-slate-100 dark:border-slate-700 space-y-3">
                 <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase">Add New Player</h4>
                 <div>
@@ -420,477 +354,132 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opponent Club Name</label>
-                    <input type="text" id="matchOpponentInput" placeholder="e.g. St. Peter's Badminton Club" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Opponent Name</label>
+                    <input type="text" id="matchOpponentInput" placeholder="e.g. Tynemouth BC" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Venue Type</label>
-                        <select id="matchTypeSelect" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none">
-                            <option value="Home">Home Match</option>
-                            <option value="Away">Away Match</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Fixture Date</label>
-                        <input type="date" id="matchDateInput" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none">
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Location</label>
+                    <select id="matchTypeSelect" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl outline-none">
+                        <option value="Home">Home Match</option>
+                        <option value="Away">Away Match</option>
+                    </select>
                 </div>
             </div>
 
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeModal('addMatchModal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancel</button>
-                <button onclick="addMatch()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow">Save Fixture</button>
+                <button onclick="saveMatch()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow">Schedule Match</button>
             </div>
         </div>
     </div>
 
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
     <script>
-        // Helper date formatter
-        function formatDate(date) {
-            if (!(date instanceof Date) || isNaN(date.getTime())) return '';
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
+        // --- SUPABASE CONFIGURATION ---
+        // REPLACE THE EMPTY STRINGS BELOW WITH YOUR SUPABASE URL AND PUBLIC ANON KEY TO SYNC DEVICELIDE
+        let SUPABASE_URL = 'https://cgwmwgcyvftdtbcloeuv.supabase.co/rest/v1/';
+        let SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnd213Z2N5dmZ0ZHRiY2xvZXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTc0NTAsImV4cCI6MjEwNTA3MzQ1MH0.KRH69-Wo1Z6_KPIWNykA6OZ6qG4PWN87TXkJWInC75k';
+
+        let supabaseClient = null;
+
+        if (SUPABASE_URL && SUPABASE_KEY && window.supabase) {
+            try {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            } catch (e) {
+                console.error("Supabase Client Init Error:", e);
+            }
         }
 
-        // Teams Definition
+        // Teams Setup
         const TEAMS = [
-            { code: '1M', name: '1st Mens', target: 6, icon: 'fa-user-tie' },
-            { code: '2M', name: '2nd Mens', target: 6, icon: 'fa-user' },
-            { code: '3M', name: '3rd Mens', target: 6, icon: 'fa-user' },
-            { code: '1X', name: '1st Mixed', target: 6, icon: 'fa-people-arrows' },
-            { code: '2X', name: '2nd Mixed', target: 6, icon: 'fa-people-arrows' },
-            { code: '1L', name: '1st Ladies', target: 6, icon: 'fa-user-nurse' }
+            { id: '1M', name: '1st Mens', color: 'bg-blue-500' },
+            { id: '2M', name: '2nd Mens', color: 'bg-cyan-500' },
+            { id: '3M', name: '3rd Mens', color: 'bg-teal-500' },
+            { id: '1X', name: '1st Mixed', color: 'bg-purple-500' },
+            { id: '2X', name: '2nd Mixed', color: 'bg-fuchsia-500' },
+            { id: '1L', name: '1st Ladies', color: 'bg-rose-500' }
         ];
 
-        // Default Initial Players
-        const MOCK_PLAYERS = [
-            { id: 'p1', name: 'Alex Johnson', teams: ['1M', '1X'] },
-            { id: 'p2', name: 'Brian Smith', teams: ['1M', '2M'] },
-            { id: 'p3', name: 'Charlie Davis', teams: ['1M', '1X'] },
-            { id: 'p4', name: 'Daniel Lee', teams: ['1M'] },
-            { id: 'p5', name: 'Eric Miller', teams: ['1M', '2X'] },
-            { id: 'p6', name: 'Frank Wilson', teams: ['1M'] },
-            { id: 'p7', name: 'Grace Taylor', teams: ['1L', '1X'] },
-            { id: 'p8', name: 'Hannah White', teams: ['1L', '2X'] },
-            { id: 'p9', name: 'Isla Anderson', teams: ['1L', '1X'] },
-            { id: 'p10', name: 'Julia Martin', teams: ['1L'] }
+        // State Management
+        let players = JSON.parse(localStorage.getItem('nmbc_players')) || [
+            { id: 'p1', name: 'John Doe', teams: ['1M', '1X'] },
+            { id: 'p2', name: 'Jane Smith', teams: ['1L', '1X'] },
+            { id: 'p3', name: 'Alex Johnson', teams: ['2M', '2X'] }
         ];
 
-        // Global State Variables
-        let currentDate = new Date();
-        let selectedDates = new Set();
-        let isMultiSelectMode = false;
+        let availability = JSON.parse(localStorage.getItem('nmbc_availability')) || {};
+        let matches = JSON.parse(localStorage.getItem('nmbc_matches')) || [];
+        let adminPassword = localStorage.getItem('nmbc_admin_pwd') || 'badminton123';
+
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth();
+        let selectedDates = [formatDate(new Date())];
+        let activePlayerId = localStorage.getItem('nmbc_active_player') || (players[0] ? players[0].id : '');
         let activeTeamFilter = 'ALL';
-        let activePlayerId = 'p1';
+        let isAdminLoggedIn = localStorage.getItem('nmbc_is_admin') === 'true';
+        let isMultiSelectEnabled = false;
 
-        let isAdminLoggedIn = false;
-        // Default initial admin password (can be changed in code here or dynamically in the UI)
-        let adminPassword = 'badminton123';
-
-        let players = [];
-        let availability = {};
-        let matches = [];
-
-        // Application Initialization
-        window.addEventListener('DOMContentLoaded', () => {
-            selectedDates.add(formatDate(new Date()));
-            loadAdminPassword();
-            loadState();
-            updateAdminUI();
-            renderAll();
-        });
-
-        function loadAdminPassword() {
-            const savedPw = localStorage.getItem('smash_admin_password');
-            if (savedPw) adminPassword = savedPw;
+        function formatDate(d) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
-        function loadState() {
-            const localP = localStorage.getItem('smash_players');
-            const localA = localStorage.getItem('smash_availability');
-            const localM = localStorage.getItem('smash_matches');
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-800';
+            toast.className = `${bgClass} text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 pointer-events-auto transition-all transform translate-y-2 opacity-0`;
+            toast.innerHTML = `<span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
-            players = localP ? JSON.parse(localP) : [...MOCK_PLAYERS];
-            availability = localA ? JSON.parse(localA) : {};
-            matches = localM ? JSON.parse(localM) : [];
-
-            if (players.length > 0 && !players.some(p => p.id === activePlayerId)) {
-                activePlayerId = players[0].id;
+        async function initApp() {
+            if (supabaseClient) {
+                await fetchSupabaseData();
             }
-        }
-
-        function saveState() {
-            localStorage.setItem('smash_players', JSON.stringify(players));
-            localStorage.setItem('smash_availability', JSON.stringify(availability));
-            localStorage.setItem('smash_matches', JSON.stringify(matches));
-        }
-
-        function renderAll() {
+            updateAdminUIState();
+            populateActivePlayerSelect();
             renderCalendar();
-            renderSelectedDateDetails();
-            renderActivePlayerSelect();
-            renderRosterModalList();
+            renderRightPanel();
         }
 
-        function renderCalendar() {
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
-
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-
-            document.getElementById('calendarMonthYear').innerText = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' });
-
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-
-            let startOffset = firstDay.getDay() - 1;
-            if (startOffset === -1) startOffset = 6;
-
-            for (let i = 0; i < startOffset; i++) {
-                const emptyCell = document.createElement('div');
-                emptyCell.className = "h-20 sm:h-24 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 opacity-40";
-                grid.appendChild(emptyCell);
-            }
-
-            const todayStr = formatDate(new Date());
-
-            for (let day = 1; day <= lastDay.getDate(); day++) {
-                const dateObj = new Date(year, month, day);
-                const dateStr = formatDate(dateObj);
-                const isToday = dateStr === todayStr;
-                const isSelected = selectedDates.has(dateStr);
-
-                const filteredPlayers = getFilteredPlayers();
-                const dayAvail = availability[dateStr] || {};
-                
-                let availCount = 0;
-                filteredPlayers.forEach(p => {
-                    if (dayAvail[p.id] === 'available') availCount++;
-                });
-
-                const dayMatches = matches.filter(m => m.date === dateStr && (activeTeamFilter === 'ALL' || m.team_code === activeTeamFilter));
-
-                const cell = document.createElement('div');
-                cell.onclick = (e) => handleDateClick(dateStr, e);
-                cell.className = `h-20 sm:h-24 p-2 rounded-xl border transition cursor-pointer flex flex-col justify-between relative ${
-                    isSelected 
-                        ? 'border-brand-500 bg-brand-500/10 dark:bg-brand-900/30 ring-2 ring-brand-500/60 shadow-md' 
-                        : 'border-slate-200 dark:border-slate-700/70 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
-                }`;
-
-                cell.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold ${isToday ? 'bg-brand-600 text-white w-5 h-5 rounded-full flex items-center justify-center' : 'text-slate-700 dark:text-slate-300'}">${day}</span>
-                        <div class="flex items-center gap-1">
-                            ${isSelected ? `<i class="fa-solid fa-circle-check text-brand-500 text-xs"></i>` : ''}
-                            ${dayMatches.length > 0 ? `<span class="bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-trophy"></i> ${dayMatches.length}</span>` : ''}
-                        </div>
-                    </div>
-
-                    <div class="space-y-1">
-                        ${filteredPlayers.length > 0 ? `
-                            <div class="flex items-center justify-between text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                                <span class="flex items-center gap-1">
-                                    <span class="w-2 h-2 rounded-full ${availCount > 0 ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}"></span>
-                                    ${availCount} Avail
-                                </span>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-
-                grid.appendChild(cell);
-            }
-        }
-
-        function handleDateClick(dateStr, event) {
-            if (isMultiSelectMode || (event && (event.ctrlKey || event.metaKey || event.shiftKey))) {
-                if (selectedDates.has(dateStr)) {
-                    if (selectedDates.size > 1) selectedDates.delete(dateStr);
-                } else {
-                    selectedDates.add(dateStr);
+        async function fetchSupabaseData() {
+            if (!supabaseClient) return;
+            try {
+                let { data: pData } = await supabaseClient.from('players').select('*');
+                if (pData && pData.length > 0) {
+                    players = pData;
+                    localStorage.setItem('nmbc_players', JSON.stringify(players));
                 }
-            } else {
-                selectedDates.clear();
-                selectedDates.add(dateStr);
-            }
-            renderAll();
-        }
 
-        function toggleMultiSelectMode() {
-            isMultiSelectMode = !isMultiSelectMode;
-            const btn = document.getElementById('multiSelectToggleBtn');
-            const txt = document.getElementById('multiSelectToggleText');
-
-            if (isMultiSelectMode) {
-                btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white border border-brand-500 shadow-sm transition flex items-center gap-1.5";
-                txt.innerText = "Multi-Select: ON";
-                showToast("Multi-select mode enabled. Click dates to select multiple.", "info");
-            } else {
-                btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 transition flex items-center gap-1.5";
-                txt.innerText = "Multi-Select: OFF";
-            }
-        }
-
-        function clearDateSelection() {
-            selectedDates.clear();
-            selectedDates.add(formatDate(new Date()));
-            renderAll();
-        }
-
-        function selectCurrentWeek() {
-            selectedDates.clear();
-            const refDateStr = Array.from(selectedDates)[0] || formatDate(new Date());
-            const refDate = new Date(refDateStr + 'T00:00:00');
-            
-            let dayOfWeek = refDate.getDay();
-            let distanceToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-            let monday = new Date(refDate);
-            monday.setDate(refDate.getDate() + distanceToMon);
-
-            for (let i = 0; i < 7; i++) {
-                let d = new Date(monday);
-                d.setDate(monday.getDate() + i);
-                selectedDates.add(formatDate(d));
-            }
-
-            renderAll();
-            showToast("Selected full week (7 days)", "info");
-        }
-
-        function selectCurrentMonth() {
-            selectedDates.clear();
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const lastDay = new Date(year, month + 1, 0).getDate();
-
-            for (let d = 1; d <= lastDay; d++) {
-                const dateObj = new Date(year, month, d);
-                selectedDates.add(formatDate(dateObj));
-            }
-
-            renderAll();
-            showToast(`Selected entire month (${lastDay} days)`, "info");
-        }
-
-        function selectWeekends() {
-            selectedDates.clear();
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const lastDay = new Date(year, month + 1, 0).getDate();
-
-            for (let d = 1; d <= lastDay; d++) {
-                const dateObj = new Date(year, month, d);
-                const day = dateObj.getDay();
-                if (day === 0 || day === 6) {
-                    selectedDates.add(formatDate(dateObj));
-                }
-            }
-
-            renderAll();
-            showToast("Selected all weekends in month", "info");
-        }
-
-        function selectWeekdays() {
-            selectedDates.clear();
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const lastDay = new Date(year, month + 1, 0).getDate();
-
-            for (let d = 1; d <= lastDay; d++) {
-                const dateObj = new Date(year, month, d);
-                const day = dateObj.getDay();
-                if (day >= 1 && day <= 5) {
-                    selectedDates.add(formatDate(dateObj));
-                }
-            }
-
-            renderAll();
-            showToast("Selected all weekdays in month", "info");
-        }
-
-        function applyDateRange() {
-            const startVal = document.getElementById('rangeStartInput').value;
-            const endVal = document.getElementById('rangeEndInput').value;
-
-            if (!startVal || !endVal) {
-                showToast("Please select both start and end dates.", "warning");
-                return;
-            }
-
-            const start = new Date(startVal + 'T00:00:00');
-            const end = new Date(endVal + 'T00:00:00');
-
-            if (start > end) {
-                showToast("Start date must be before end date.", "error");
-                return;
-            }
-
-            selectedDates.clear();
-            let curr = new Date(start);
-            let count = 0;
-
-            while (curr <= end && count < 366) {
-                selectedDates.add(formatDate(curr));
-                curr.setDate(curr.getDate() + 1);
-                count++;
-            }
-
-            renderAll();
-            showToast(`Selected range of ${count} dates`, "success");
-        }
-
-        function renderSelectedDateDetails() {
-            const title = document.getElementById('selectedDateTitle');
-            const matchBtn = document.getElementById('addMatchBtn');
-            const countBadge = document.getElementById('selectionCountBadge');
-            
-            const count = selectedDates.size;
-            const dateArr = Array.from(selectedDates).sort();
-            
-            if (count === 1) {
-                const singleDate = new Date(dateArr[0] + 'T00:00:00');
-                title.innerText = singleDate.toLocaleDateString('default', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-                matchBtn.classList.remove('hidden');
-                matchBtn.classList.add('flex');
-                countBadge.innerText = '1 date';
-            } else {
-                title.innerText = `${count} dates selected`;
-                matchBtn.classList.add('hidden');
-                matchBtn.classList.remove('flex');
-                countBadge.innerText = `${count} dates`;
-            }
-
-            const activeP = players.find(p => p.id === activePlayerId);
-            document.getElementById('activePlayerNameDisplay').innerText = activeP ? activeP.name : 'None';
-
-            const dayMatches = matches.filter(m => selectedDates.has(m.date));
-            const matchesContainer = document.getElementById('dateMatchesContainer');
-            const matchesList = document.getElementById('dateMatchesList');
-
-            if (dayMatches.length > 0) {
-                matchesContainer.classList.remove('hidden');
-                matchesList.innerHTML = dayMatches.map(m => `
-                    <div class="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 flex items-center justify-between text-xs">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-trophy text-indigo-600"></i>
-                            <div>
-                                <span class="font-bold text-indigo-900 dark:text-indigo-200">${getTeamName(m.team_code)}</span>
-                                <span class="text-indigo-700 dark:text-indigo-300"> vs ${m.opponent} (${m.type})</span>
-                                <span class="text-[10px] text-slate-500 dark:text-slate-400 block">${m.date}</span>
-                            </div>
-                        </div>
-                        ${isAdminLoggedIn ? `<button onclick="deleteMatch('${m.id}')" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-trash"></i></button>` : `<i class="fa-solid fa-lock text-[10px] text-slate-400" title="Admin only"></i>`}
-                    </div>
-                `).join('');
-            } else {
-                matchesContainer.classList.add('hidden');
-            }
-
-            const teamList = document.getElementById('teamReadinessList');
-            teamList.innerHTML = '';
-
-            const displayTeams = activeTeamFilter === 'ALL' 
-                ? TEAMS 
-                : TEAMS.filter(t => t.code === activeTeamFilter);
-
-            displayTeams.forEach(team => {
-                const teamPlayers = players.filter(p => p.teams.includes(team.code));
-                
-                let minAvailCount = Infinity;
-                let maxAvailCount = 0;
-
-                dateArr.forEach(dateStr => {
-                    const dayAvail = availability[dateStr] || {};
-                    let dayAvailCount = 0;
-                    teamPlayers.forEach(p => {
-                        if (dayAvail[p.id] === 'available') dayAvailCount++;
+                let { data: aData } = await supabaseClient.from('availability').select('*');
+                if (aData) {
+                    let map = {};
+                    aData.forEach(row => {
+                        if (!map[row.date]) map[row.date] = {};
+                        map[row.date][row.player_id] = row.status;
                     });
-                    if (dayAvailCount < minAvailCount) minAvailCount = dayAvailCount;
-                    if (dayAvailCount > maxAvailCount) maxAvailCount = dayAvailCount;
-                });
-
-                if (minAvailCount === Infinity) minAvailCount = 0;
-
-                const isReady = minAvailCount >= team.target;
-                const percentage = Math.min(100, Math.round((minAvailCount / team.target) * 100));
-
-                const card = document.createElement('div');
-                card.className = `p-3 rounded-xl border ${isReady ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/50' : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-700/60'}`;
-                
-                card.innerHTML = `
-                    <div class="flex items-center justify-between mb-1.5">
-                        <div class="flex items-center space-x-2">
-                            <i class="fa-solid ${team.icon} text-xs text-slate-500"></i>
-                            <span class="font-bold text-xs text-slate-800 dark:text-slate-200">${team.name}</span>
-                        </div>
-                        <span class="text-xs font-semibold ${isReady ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}">
-                            ${count === 1 ? `${minAvailCount}/${team.target} Ready` : `${minAvailCount}-${maxAvailCount}/${team.target} Ready`}
-                        </span>
-                    </div>
-
-                    <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                        <div class="h-full ${isReady ? 'bg-emerald-500' : 'bg-brand-500'}" style="width: ${percentage}%"></div>
-                    </div>
-                `;
-
-                teamList.appendChild(card);
-            });
-        }
-
-        function setAvailabilityForSelectedDates(status) {
-            if (!activePlayerId) {
-                showToast("Please select an active player first.", "warning");
-                return;
-            }
-
-            const datesToUpdate = Array.from(selectedDates);
-
-            datesToUpdate.forEach(dateStr => {
-                if (!availability[dateStr]) {
-                    availability[dateStr] = {};
+                    availability = map;
+                    localStorage.setItem('nmbc_availability', JSON.stringify(availability));
                 }
-                availability[dateStr][activePlayerId] = status;
-            });
 
-            saveState();
-            renderAll();
-            showToast(`Updated ${datesToUpdate.length} date(s) to "${status}"`, "success");
-        }
-
-        function jumpToToday() {
-            currentDate = new Date();
-            selectedDates.clear();
-            selectedDates.add(formatDate(new Date()));
-            renderAll();
-        }
-
-        function changeMonth(offset) {
-            currentDate.setMonth(currentDate.getMonth() + offset);
-            renderAll();
-        }
-
-        function setTeamFilter(code) {
-            activeTeamFilter = code;
-            document.querySelectorAll('.team-filter-btn').forEach(btn => {
-                btn.className = "team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 transition whitespace-nowrap";
-            });
-
-            const activeBtn = document.getElementById(`filter-btn-${code}`);
-            if (activeBtn) {
-                activeBtn.className = "team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white shadow-sm transition whitespace-nowrap";
+                let { data: mData } = await supabaseClient.from('matches').select('*');
+                if (mData) {
+                    matches = mData;
+                    localStorage.setItem('nmbc_matches', JSON.stringify(matches));
+                }
+            } catch (e) {
+                console.error("Supabase sync error:", e);
             }
-
-            renderAll();
-        }
-
-        function setActivePlayer(id) {
-            activePlayerId = id;
-            renderSelectedDateDetails();
         }
 
         function handleAdminToggle() {
@@ -902,197 +491,517 @@
         }
 
         function verifyAdminPassword() {
-            const inputPw = document.getElementById('adminPasswordInput').value;
-            if (inputPw === adminPassword) {
+            const input = document.getElementById('adminPasswordInput').value;
+            if (input === adminPassword) {
                 isAdminLoggedIn = true;
+                localStorage.setItem('nmbc_is_admin', 'true');
                 closeModal('adminModal');
                 document.getElementById('adminPasswordInput').value = '';
-                updateAdminUI();
-                showToast("Successfully logged in as Admin!", "success");
+                updateAdminUIState();
+                showToast("Logged in as Admin", "success");
             } else {
-                showToast("Incorrect password.", "error");
+                showToast("Incorrect Password", "error");
             }
         }
 
         function changeAdminPassword() {
-            const newPw = document.getElementById('newAdminPasswordInput').value.trim();
-            if (!newPw) {
-                showToast("Password cannot be empty.", "warning");
+            const newPwd = document.getElementById('newAdminPasswordInput').value.trim();
+            if (!newPwd) {
+                showToast("Password cannot be empty", "error");
                 return;
             }
-            adminPassword = newPw;
-            localStorage.setItem('smash_admin_password', newPw);
+            adminPassword = newPwd;
+            localStorage.setItem('nmbc_admin_pwd', newPwd);
             document.getElementById('newAdminPasswordInput').value = '';
             closeModal('adminSettingsModal');
-            showToast("Admin password updated successfully!", "success");
+            showToast("Admin Password Updated", "success");
         }
 
         function adminLogout() {
             isAdminLoggedIn = false;
+            localStorage.setItem('nmbc_is_admin', 'false');
             closeModal('adminSettingsModal');
-            updateAdminUI();
-            showToast("Logged out of Admin view.", "info");
+            updateAdminUIState();
+            showToast("Logged out of Admin Mode");
         }
 
-        function requireAdmin(actionCallback) {
+        function requireAdmin(callback) {
             if (isAdminLoggedIn) {
-                actionCallback();
+                callback();
             } else {
-                showToast("Captain/Admin login required for this action.", "warning");
                 openModal('adminModal');
             }
         }
 
-        function updateAdminUI() {
+        function updateAdminUIState() {
             const authText = document.getElementById('adminAuthText');
+            const authBtn = document.getElementById('adminAuthBtn');
             const lockIcon = document.getElementById('adminLockIcon');
             const modeBadge = document.getElementById('modeBadge');
 
             if (isAdminLoggedIn) {
                 authText.innerText = "Admin Settings";
-                lockIcon.className = "fa-solid fa-lock-open text-emerald-400";
-                modeBadge.className = "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
+                authBtn.classList.replace('bg-slate-800', 'bg-brand-700');
+                lockIcon.className = "fa-solid fa-lock-open text-emerald-300";
                 modeBadge.innerHTML = `<i class="fa-solid fa-user-shield text-xs"></i><span>Admin View</span>`;
+                modeBadge.className = "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
             } else {
                 authText.innerText = "Admin Login";
+                authBtn.classList.replace('bg-brand-700', 'bg-slate-800');
                 lockIcon.className = "fa-solid fa-lock text-amber-400";
-                modeBadge.className = "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20";
                 modeBadge.innerHTML = `<i class="fa-solid fa-eye text-xs"></i><span>Player View</span>`;
+                modeBadge.className = "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20";
             }
-
-            renderSelectedDateDetails();
+            renderCalendar();
+            renderRightPanel();
         }
 
-        function renderActivePlayerSelect() {
+        function populateActivePlayerSelect() {
             const select = document.getElementById('activePlayerSelect');
-            select.innerHTML = '';
-
-            const filtered = getFilteredPlayers();
-
-            filtered.forEach(p => {
+            select.innerHTML = '<option value="">-- Select Active Player --</option>';
+            players.forEach(p => {
                 const opt = document.createElement('option');
                 opt.value = p.id;
-                opt.innerText = `${p.name} (${p.teams.join(', ')})`;
+                opt.textContent = p.name;
                 if (p.id === activePlayerId) opt.selected = true;
                 select.appendChild(opt);
             });
+            updateActivePlayerDisplay();
         }
 
-        function renderRosterModalList() {
-            const container = document.getElementById('rosterPlayersList');
-            container.innerHTML = '';
+        function setActivePlayer(id) {
+            activePlayerId = id;
+            localStorage.setItem('nmbc_active_player', id);
+            updateActivePlayerDisplay();
+            renderCalendar();
+            renderRightPanel();
+        }
 
-            players.forEach(p => {
-                const div = document.createElement('div');
-                div.className = "p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs";
-                div.innerHTML = `
-                    <div>
-                        <span class="font-bold text-slate-800 dark:text-slate-200">${p.name}</span>
-                        <span class="text-[10px] text-slate-500 block">${p.teams.map(t => getTeamName(t)).join(', ')}</span>
+        function updateActivePlayerDisplay() {
+            const activePlayer = players.find(p => p.id === activePlayerId);
+            document.getElementById('activePlayerNameDisplay').innerText = activePlayer ? activePlayer.name : '--';
+        }
+
+        function setTeamFilter(teamId) {
+            activeTeamFilter = teamId;
+            document.querySelectorAll('.team-filter-btn').forEach(btn => {
+                btn.className = "team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 transition whitespace-nowrap";
+            });
+            const activeBtn = document.getElementById(`filter-btn-${teamId}`);
+            if (activeBtn) activeBtn.className = "team-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white shadow-sm transition whitespace-nowrap";
+            renderCalendar();
+            renderRightPanel();
+        }
+
+        function toggleMultiSelectMode() {
+            isMultiSelectEnabled = !isMultiSelectEnabled;
+            const btn = document.getElementById('multiSelectToggleBtn');
+            const text = document.getElementById('multiSelectToggleText');
+            if (isMultiSelectEnabled) {
+                btn.classList.replace('bg-slate-100', 'bg-brand-100');
+                btn.classList.add('dark:bg-brand-900/40', 'border-brand-500');
+                text.innerText = "Multi-Select: ON";
+                showToast("Multi-select active. Click dates to add/remove.", "info");
+            } else {
+                btn.classList.replace('bg-brand-100', 'bg-slate-100');
+                btn.classList.remove('dark:bg-brand-900/40', 'border-brand-500');
+                text.innerText = "Multi-Select: OFF";
+            }
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            renderCalendar();
+        }
+
+        function jumpToToday() {
+            const today = new Date();
+            currentYear = today.getFullYear();
+            currentMonth = today.getMonth();
+            selectedDates = [formatDate(today)];
+            renderCalendar();
+            renderRightPanel();
+        }
+
+        function selectDate(dateStr, e) {
+            if (isMultiSelectEnabled || (e && (e.ctrlKey || e.metaKey))) {
+                if (selectedDates.includes(dateStr)) {
+                    if (selectedDates.length > 1) {
+                        selectedDates = selectedDates.filter(d => d !== dateStr);
+                    }
+                } else {
+                    selectedDates.push(dateStr);
+                }
+            } else {
+                selectedDates = [dateStr];
+            }
+            renderCalendar();
+            renderRightPanel();
+        }
+
+        function clearDateSelection() {
+            selectedDates = [formatDate(new Date())];
+            renderCalendar();
+            renderRightPanel();
+        }
+
+        function selectCurrentWeek() {
+            const dates = [];
+            const curr = new Date();
+            const first = curr.getDate() - curr.getDay() + 1;
+            for (let i = 0; i < 7; i++) {
+                const next = new Date(curr.setDate(first + i));
+                dates.push(formatDate(next));
+            }
+            selectedDates = dates;
+            renderCalendar();
+            renderRightPanel();
+        }
+
+        function selectCurrentMonth() {
+            const dates = [];
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateObj = new Date(currentYear, currentMonth, d);
+                dates.push(formatDate(dateObj));
+            }
+            selectedDates = dates;
+            renderCalendar();
+            renderRightPanel();
+        }
+
+        function selectWeekends() {
+            const dates = [];
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateObj = new Date(currentYear, currentMonth, d);
+                const day = dateObj.getDay();
+                if (day === 0 || day === 6) dates.push(formatDate(dateObj));
+            }
+            selectedDates = dates;
+            renderCalendar();
+            renderRightPanel();
+        }
+
+        function selectWeekdays() {
+            const dates = [];
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateObj = new Date(currentYear, currentMonth, d);
+                const day = dateObj.getDay();
+                if (day !== 0 && day !== 6) dates.push(formatDate(dateObj));
+            }
+            selectedDates = dates;
+            renderCalendar();
+            renderRightPanel();
+        }
+
+        function applyDateRange() {
+            const startStr = document.getElementById('rangeStartInput').value;
+            const endStr = document.getElementById('rangeEndInput').value;
+            if (!startStr || !endStr) {
+                showToast("Select both start and end dates", "error");
+                return;
+            }
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            if (start > end) {
+                showToast("Start date must be before end date", "error");
+                return;
+            }
+            const dates = [];
+            let curr = new Date(start);
+            while (curr <= end) {
+                dates.push(formatDate(curr));
+                curr.setDate(curr.getDate() + 1);
+            }
+            selectedDates = dates;
+            renderCalendar();
+            renderRightPanel();
+        }
+
+        async function setAvailabilityForSelectedDates(status) {
+            if (!activePlayerId) {
+                showToast("Please select your name from the player list top right", "error");
+                return;
+            }
+
+            const upsertBatch = [];
+
+            selectedDates.forEach(dateStr => {
+                if (!availability[dateStr]) availability[dateStr] = {};
+                availability[dateStr][activePlayerId] = status;
+                upsertBatch.push({ date: dateStr, player_id: activePlayerId, status: status });
+            });
+
+            localStorage.setItem('nmbc_availability', JSON.stringify(availability));
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('availability').upsert(upsertBatch, { onConflict: 'date,player_id' });
+                } catch (e) {
+                    console.error("Supabase Save Error:", e);
+                }
+            }
+
+            renderCalendar();
+            renderRightPanel();
+            showToast(`Status set to ${status.toUpperCase()} for ${selectedDates.length} date(s)`, "success");
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('calendarMonthYear').innerText = `${monthNames[currentMonth]} ${currentYear}`;
+
+            const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+            const adjustedFirstDay = (firstDayIndex === 0 ? 6 : firstDayIndex - 1);
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            for (let i = 0; i < adjustedFirstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = "h-20 sm:h-24 bg-slate-100/40 dark:bg-slate-900/20 rounded-xl border border-transparent";
+                grid.appendChild(emptyCell);
+            }
+
+            const todayStr = formatDate(new Date());
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateObj = new Date(currentYear, currentMonth, d);
+                const dateStr = formatDate(dateObj);
+                const isSelected = selectedDates.includes(dateStr);
+                const isToday = dateStr === todayStr;
+
+                const dayCell = document.createElement('div');
+                dayCell.onclick = (e) => selectDate(dateStr, e);
+
+                let cellClasses = "h-20 sm:h-24 p-1.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ";
+                if (isSelected) {
+                    cellClasses += "bg-brand-50/80 dark:bg-brand-900/30 border-brand-500 shadow-sm ring-1 ring-brand-500 ";
+                } else if (isToday) {
+                    cellClasses += "bg-white dark:bg-slate-800 border-indigo-500 font-bold ";
+                } else {
+                    cellClasses += "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700/60 hover:border-slate-300 dark:hover:border-slate-600 ";
+                }
+
+                dayCell.className = cellClasses;
+
+                let activeStatusClass = "";
+                if (activePlayerId && availability[dateStr] && availability[dateStr][activePlayerId]) {
+                    const st = availability[dateStr][activePlayerId];
+                    if (st === 'available') activeStatusClass = "border-l-4 border-l-emerald-500";
+                    else if (st === 'tentative') activeStatusClass = "border-l-4 border-l-amber-500";
+                    else if (st === 'unavailable') activeStatusClass = "border-l-4 border-l-rose-500";
+                }
+                if (activeStatusClass) dayCell.className += " " + activeStatusClass;
+
+                let availCount = 0;
+                let filteredPlayers = players;
+                if (activeTeamFilter !== 'ALL') {
+                    filteredPlayers = players.filter(p => p.teams.includes(activeTeamFilter));
+                }
+
+                filteredPlayers.forEach(p => {
+                    if (availability[dateStr] && availability[dateStr][p.id] === 'available') {
+                        availCount++;
+                    }
+                });
+
+                const dayMatches = matches.filter(m => m.date === dateStr && (activeTeamFilter === 'ALL' || m.team === activeTeamFilter));
+
+                dayCell.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold ${isToday ? 'bg-indigo-600 text-white w-5 h-5 rounded-full flex items-center justify-center' : 'text-slate-700 dark:text-slate-300'}">${d}</span>
+                        ${availCount > 0 ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">${availCount} <i class="fa-solid fa-user text-[8px]"></i></span>` : ''}
                     </div>
-                    <button onclick="deletePlayer('${p.id}')" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-trash"></i></button>
+                    <div class="space-y-1 my-auto">
+                        ${dayMatches.map(m => `
+                            <div class="text-[9px] font-bold px-1 py-0.5 rounded truncate bg-indigo-500 text-white">
+                                ${m.team} v ${m.opponent}
+                            </div>
+                        `).join('')}
+                    </div>
                 `;
-                container.appendChild(div);
+
+                grid.appendChild(dayCell);
+            }
+        }
+
+        function renderRightPanel() {
+            const count = selectedDates.length;
+            document.getElementById('selectedDateTitle').innerText = count === 1 ? selectedDates[0] : `${count} dates selected`;
+            document.getElementById('selectionCountBadge').innerText = `${count} date(s)`;
+
+            const matchesContainer = document.getElementById('dateMatchesContainer');
+            const matchesList = document.getElementById('dateMatchesList');
+            matchesList.innerHTML = '';
+
+            const selectedMatches = matches.filter(m => selectedDates.includes(m.date));
+            if (selectedMatches.length > 0) {
+                matchesContainer.classList.remove('hidden');
+                selectedMatches.forEach(m => {
+                    const item = document.createElement('div');
+                    item.className = "bg-indigo-50 dark:bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-200 dark:border-indigo-800/40 flex items-center justify-between text-xs";
+                    item.innerHTML = `
+                        <div>
+                            <span class="font-bold text-indigo-700 dark:text-indigo-300">${m.team} vs ${m.opponent}</span>
+                            <span class="block text-[10px] text-slate-500">${m.type} Match (${m.date})</span>
+                        </div>
+                        ${isAdminLoggedIn ? `<button onclick="deleteMatch('${m.id}')" class="text-rose-500 hover:text-rose-700 text-xs px-1.5 py-1"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    `;
+                    matchesList.appendChild(item);
+                });
+            } else {
+                matchesContainer.classList.add('hidden');
+            }
+
+            const readinessList = document.getElementById('teamReadinessList');
+            readinessList.innerHTML = '';
+
+            TEAMS.forEach(team => {
+                if (activeTeamFilter !== 'ALL' && activeTeamFilter !== team.id) return;
+
+                const teamPlayers = players.filter(p => p.teams.includes(team.id));
+                let availableCount = 0;
+
+                teamPlayers.forEach(p => {
+                    let isAvailAll = selectedDates.every(d => availability[d] && availability[d][p.id] === 'available');
+                    if (isAvailAll) availableCount++;
+                });
+
+                const pct = Math.min(100, Math.round((availableCount / 6) * 100));
+                const item = document.createElement('div');
+                item.className = "bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 space-y-1 text-xs";
+                item.innerHTML = `
+                    <div class="flex justify-between items-center font-semibold">
+                        <span class="text-slate-700 dark:text-slate-300">${team.name}</span>
+                        <span class="${availableCount >= 6 ? 'text-emerald-500 font-bold' : 'text-slate-500'}">${availableCount}/6 Ready</span>
+                    </div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                        <div class="h-full bg-brand-500 transition-all duration-300" style="width: ${pct}%"></div>
+                    </div>
+                `;
+                readinessList.appendChild(item);
             });
         }
 
-        function addPlayer() {
-            const nameInput = document.getElementById('newPlayerNameInput');
-            const name = nameInput.value.trim();
-
-            const checkboxes = document.querySelectorAll('#teamCheckboxes input[type="checkbox"]:checked');
-            const teams = Array.from(checkboxes).map(cb => cb.value);
-
+        async function addPlayer() {
+            const name = document.getElementById('newPlayerNameInput').value.trim();
             if (!name) {
-                showToast("Please enter player name.", "warning");
+                showToast("Enter a player name", "error");
                 return;
             }
 
-            if (teams.length === 0) {
-                showToast("Please select at least one team.", "warning");
-                return;
-            }
+            const selectedTeams = [];
+            document.querySelectorAll('#teamCheckboxes input:checked').forEach(cb => selectedTeams.push(cb.value));
 
-            const newPlayer = {
-                id: 'p_' + Date.now(),
-                name: name,
-                teams: teams
-            };
-
+            const newPlayer = { id: 'p_' + Date.now(), name: name, teams: selectedTeams };
             players.push(newPlayer);
-            saveState();
+            localStorage.setItem('nmbc_players', JSON.stringify(players));
 
-            nameInput.value = '';
-            checkboxes.forEach(cb => cb.checked = false);
-
-            renderAll();
-            showToast(`Added ${name} to roster.`, "success");
-        }
-
-        function deletePlayer(id) {
-            players = players.filter(p => p.id !== id);
-            saveState();
-
-            if (activePlayerId === id && players.length > 0) {
-                activePlayerId = players[0].id;
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('players').insert([newPlayer]);
+                } catch (e) { console.error(e); }
             }
 
-            renderAll();
-            showToast("Player removed.", "info");
+            document.getElementById('newPlayerNameInput').value = '';
+            populateActivePlayerSelect();
+            renderRosterList();
+            renderCalendar();
+            renderRightPanel();
+            showToast("Player added to roster", "success");
         }
 
-        function addMatch() {
+        async function deletePlayer(id) {
+            players = players.filter(p => p.id !== id);
+            localStorage.setItem('nmbc_players', JSON.stringify(players));
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('players').delete().eq('id', id);
+                } catch (e) { console.error(e); }
+            }
+
+            populateActivePlayerSelect();
+            renderRosterList();
+            renderCalendar();
+            renderRightPanel();
+            showToast("Player removed");
+        }
+
+        function renderRosterList() {
+            const list = document.getElementById('rosterPlayersList');
+            list.innerHTML = '';
+            players.forEach(p => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs";
+                item.innerHTML = `
+                    <div>
+                        <span class="font-bold text-slate-800 dark:text-slate-200">${p.name}</span>
+                        <span class="text-[10px] text-slate-400 block">${p.teams.join(', ')}</span>
+                    </div>
+                    <button onclick="deletePlayer('${p.id}')" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function saveMatch() {
             const team = document.getElementById('matchTeamSelect').value;
             const opponent = document.getElementById('matchOpponentInput').value.trim();
             const type = document.getElementById('matchTypeSelect').value;
-            const dateVal = document.getElementById('matchDateInput').value;
 
-            if (!opponent || !dateVal) {
-                showToast("Please enter opponent and match date.", "warning");
+            if (!opponent) {
+                showToast("Enter opponent name", "error");
                 return;
             }
 
             const newMatch = {
                 id: 'm_' + Date.now(),
-                team_code: team,
+                date: selectedDates[0],
+                team: team,
                 opponent: opponent,
-                type: type,
-                date: dateVal
+                type: type
             };
 
             matches.push(newMatch);
-            saveState();
+            localStorage.setItem('nmbc_matches', JSON.stringify(matches));
 
-            closeModal('addMatchModal');
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('matches').insert([newMatch]);
+                } catch (e) { console.error(e); }
+            }
+
             document.getElementById('matchOpponentInput').value = '';
-
-            renderAll();
-            showToast("Scheduled new fixture!", "success");
+            closeModal('addMatchModal');
+            renderCalendar();
+            renderRightPanel();
+            showToast("Fixture scheduled", "success");
         }
 
-        function deleteMatch(id) {
+        async function deleteMatch(id) {
             matches = matches.filter(m => m.id !== id);
-            saveState();
+            localStorage.setItem('nmbc_matches', JSON.stringify(matches));
 
-            renderAll();
-            showToast("Match removed.", "info");
-        }
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('matches').delete().eq('id', id);
+                } catch (e) { console.error(e); }
+            }
 
-        function getFilteredPlayers() {
-            if (activeTeamFilter === 'ALL') return players;
-            return players.filter(p => p.teams.includes(activeTeamFilter));
-        }
-
-        function getTeamName(code) {
-            const t = TEAMS.find(x => x.code === code);
-            return t ? t.name : code;
+            renderCalendar();
+            renderRightPanel();
+            showToast("Match removed");
         }
 
         function openModal(id) {
-            if (id === 'addMatchModal') {
-                const firstSelected = Array.from(selectedDates)[0] || formatDate(new Date());
-                document.getElementById('matchDateInput').value = firstSelected;
-            }
+            if (id === 'addPlayerModal') renderRosterList();
             document.getElementById(id).classList.remove('hidden');
         }
 
@@ -1104,28 +1013,13 @@
             document.documentElement.classList.toggle('dark');
             const icon = document.getElementById('themeIcon');
             if (document.documentElement.classList.contains('dark')) {
-                icon.className = "fa-solid fa-sun text-sm";
+                icon.className = "fa-solid fa-sun text-amber-400 text-sm";
             } else {
                 icon.className = "fa-solid fa-moon text-sm";
             }
         }
 
-        function showToast(msg, type = "info") {
-            const toast = document.createElement('div');
-            let bg = "bg-slate-800 text-white";
-            if (type === "success") bg = "bg-emerald-600 text-white";
-            if (type === "error") bg = "bg-rose-600 text-white";
-            if (type === "warning") bg = "bg-amber-600 text-white";
-
-            toast.className = `fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-xl shadow-lg font-medium text-xs border border-white/20 transition transform duration-300 ${bg}`;
-            toast.innerHTML = msg;
-
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 2500);
-        }
+        window.onload = initApp;
     </script>
 </body>
 </html>
